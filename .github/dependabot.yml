@@ -1,0 +1,23 @@
+version: 2
+updates:
+  # ----------------------------------------
+  # Maintain GitHub Actions (e.g., Trivy)
+  # ----------------------------------------
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "ci"
+
+  # ----------------------------------------
+  # Maintain Docker images for ddclient
+  # ----------------------------------------
+  - package-ecosystem: "docker"
+    directory: "/ddclient"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "chore"
