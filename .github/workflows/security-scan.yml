@@ -1,0 +1,26 @@
+name: Security Scan (Trivy)
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 4 * * 0' # También se ejecutará solo cada domingo de madrugada
+
+jobs:
+  scan-secrets-and-iac:
+    name: Escanear Secretos y Vulnerabilidades
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability & secret scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs' # Escanea todo el sistema de archivos del repo
+          ignore-unfixed: true
+          format: 'table'
+          scanners: 'vuln,secret,misconfig'
+          severity: 'CRITICAL,HIGH'
