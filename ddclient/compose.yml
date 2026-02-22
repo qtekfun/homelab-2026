@@ -1,6 +1,6 @@
 services:
   ddclient:
-    image: lscr.io/linuxserver/ddclient:latest
+    image: lscr.io/linuxserver/ddclient:v4.0.0-ls219
     container_name: ddclient
     environment:
       PUID: 1000
