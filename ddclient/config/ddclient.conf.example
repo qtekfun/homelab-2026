@@ -4,9 +4,9 @@ verbose=yes      # Enable verbose logging
 pid=/var/run/ddclient/ddclient.pid      # record PID in file.
 ssl=yes                                 # use ssl-support.  Works with
 use=web, web=http://ifconfig.me/ip
-ssl=yes 
+ssl=yes
 protocol=cloudflare,
 zone=domain.com,
-login=mail@mail.com, 
+login=mail@mail.com,
 password=xxxxxxxxxxxxxx
 domain_or_subdomain
