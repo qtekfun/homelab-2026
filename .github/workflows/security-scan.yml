@@ -6,20 +6,20 @@ on:
   pull_request:
     branches: [ "main", "master" ]
   schedule:
-    - cron: '0 4 * * 0' # También se ejecutará solo cada domingo de madrugada
+    - cron: '0 4 * * 0' # Runs every Sunday at 4:00 AM
 
 jobs:
   scan-secrets-and-iac:
-    name: Escanear Secretos y Vulnerabilidades
+    name: Scan Secrets and Vulnerabilities
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout del código
+      - name: Checkout code
         uses: actions/checkout@v6
 
       - name: Run Trivy vulnerability & secret scanner
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs' # Escanea todo el sistema de archivos del repo
+          scan-type: 'fs'
           ignore-unfixed: true
           format: 'table'
           scanners: 'vuln,secret,misconfig'
