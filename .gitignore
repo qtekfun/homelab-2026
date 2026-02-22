@@ -1,3 +1,4 @@
 .env
 *.env
 *-data/
+ddclient/config/ddclient.conf
