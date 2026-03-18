@@ -1,0 +1,33 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:base"],
+  "docker-compose": {
+    "enabled": true,
+    "fileMatch": ["(^|/)compose\\.yml$", "(^|/)docker-compose\\.yml$"]
+  },
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "merge"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["major-update", "needs-review"]
+    },
+    {
+      "matchPackageNames": [
+        "traefik",
+        "authelia/authelia",
+        "crowdsecurity/crowdsec",
+        "n8nio/n8n"
+      ],
+      "automerge": false,
+      "labels": ["security-critical", "needs-review"]
+    }
+  ],
+  "schedule": ["every weekend"],
+  "prConcurrentLimit": 5
+}
