@@ -1,6 +1,6 @@
 services:
   ddclient:
-    image: lscr.io/linuxserver/ddclient:v4.0.0-ls219
+    image: lscr.io/linuxserver/ddclient:v4.0.0-ls219 # renovate: datasource=docker
     container_name: ddclient
     environment:
       PUID: ${PUID}
@@ -11,13 +11,31 @@ services:
     restart: unless-stopped
     networks:
       - ddclient_ntwrk
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETUID
+      - SETGID
+    deploy:
+      resources:
+        limits:
+          memory: 50m
+          cpus: "0.25"
+        reservations:
+          memory: 25m
     healthcheck:
       test: ["CMD-SHELL", "pgrep ddclient || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 30s
 
 networks:
   ddclient_ntwrk:
     name: ddclient_ntwrk
+    internal: false
