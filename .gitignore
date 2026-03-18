@@ -1,4 +1,78 @@
+# ============================================
+# DATA AND DATABASES
+# ============================================
+**/postgres/
+**/postgres-data/
+**/mariadb/
+**/db-data/
+**/redis/
+**/data/
+**/logs/
+
+# ============================================
+# LIVE CONFIGURATION DATA
+# ============================================
+**/config/
+**/profiles/
+
+# Exceptions — configs we want to version
+!networking/traefik/config/
+!networking/authelia/config/
+!networking/crowdsec/config/
+!ntfy/server.yml
+!monitoring/prometheus/
+!monitoring/alertmanager/
+!obsidian/local.ini
+
+# ============================================
+# SECRETS AND CREDENTIALS
+# ============================================
 .env
-*.env
-*-data/
-ddclient/config/ddclient.conf
+**/.env
+**/authelia-temp-keys/
+*.key
+*.pem
+*.p12
+*.crt
+*.cer
+
+# ============================================
+# BACKUPS AND TEMPORARY FILES
+# ============================================
+*.tgz
+*.tar.gz
+*.zip
+*.bak
+*.sql
+*.dump
+pre_migration_backup*
+initdb.sql
+
+# ============================================
+# SERVICE-SPECIFIC DIRECTORIES
+# ============================================
+immich/postgres/
+kasm/data/
+portainer/portainer-data/
+guacamole/guac-db-data/
+n8n/postgres-data/
+n8n/files/
+newm/nextcloud/
+newm/mariadb/
+wireguard/config_old/
+
+# ============================================
+# DISABLED SERVICES — compose only, no data
+# ============================================
+disabled/**/data/
+disabled/**/postgres/
+disabled/**/db/
+disabled/**/pgdata/
+
+# ============================================
+# SYSTEM
+# ============================================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
