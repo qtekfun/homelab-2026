@@ -3,14 +3,12 @@ services:
     image: lscr.io/linuxserver/ddclient:v4.0.0-ls219
     container_name: ddclient
     environment:
-      PUID: 1000
-      PGID: 1000
-      TZ: Your/Timezone
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
     volumes:
       - ./config:/config
     restart: unless-stopped
-    labels:
-      com.centurylinklabs.watchtower.enable: "true"
     networks:
       - ddclient_ntwrk
     healthcheck:
@@ -19,12 +17,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
-    # deploy:
-    #   resources:
-    #     limits:
-    #       memory: 50M
-    #     reservations:
-    #       memory: 25M
 
 networks:
   ddclient_ntwrk:
