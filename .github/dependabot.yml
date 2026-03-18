@@ -35,14 +35,6 @@ updates:
       prefix: "chore"
 
   - package-ecosystem: "docker"
-    directory: "/kasm"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    commit-message:
-      prefix: "chore"
-
-  - package-ecosystem: "docker"
     directory: "/monitoring"
     schedule:
       interval: "weekly"
@@ -59,39 +51,7 @@ updates:
       prefix: "chore"
 
   - package-ecosystem: "docker"
-    directory: "/networking/authelia"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    commit-message:
-      prefix: "chore"
-
-  - package-ecosystem: "docker"
-    directory: "/networking/crowdsec"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    commit-message:
-      prefix: "chore"
-
-  - package-ecosystem: "docker"
-    directory: "/networking/traefik"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    commit-message:
-      prefix: "chore"
-
-  - package-ecosystem: "docker"
     directory: "/newm"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    commit-message:
-      prefix: "chore"
-
-  - package-ecosystem: "docker"
-    directory: "/nextcloud"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -116,14 +76,6 @@ updates:
 
   - package-ecosystem: "docker"
     directory: "/portainer"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    commit-message:
-      prefix: "chore"
-
-  - package-ecosystem: "docker"
-    directory: "/wireguard"
     schedule:
       interval: "weekly"
       day: "monday"
