@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # GitHub Actions
+  # GitHub Actions only — Docker images managed by Renovate in Forgejo
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -8,76 +8,3 @@ updates:
       day: "monday"
     commit-message:
       prefix: "ci"
-
-  # Docker images
-  - package-ecosystem: "docker"
-    directory: "/ddclient"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    commit-message:
-      prefix: "chore"
-
-  - package-ecosystem: "docker"
-    directory: "/guacamole"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    commit-message:
-      prefix: "chore"
-
-  - package-ecosystem: "docker"
-    directory: "/immich"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    commit-message:
-      prefix: "chore"
-
-  - package-ecosystem: "docker"
-    directory: "/monitoring"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    commit-message:
-      prefix: "chore"
-
-  - package-ecosystem: "docker"
-    directory: "/n8n"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    commit-message:
-      prefix: "chore"
-
-  - package-ecosystem: "docker"
-    directory: "/newm"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    commit-message:
-      prefix: "chore"
-
-  - package-ecosystem: "docker"
-    directory: "/ntfy"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    commit-message:
-      prefix: "chore"
-
-  - package-ecosystem: "docker"
-    directory: "/obsidian"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    commit-message:
-      prefix: "chore"
-
-  - package-ecosystem: "docker"
-    directory: "/portainer"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    commit-message:
-      prefix: "chore"
