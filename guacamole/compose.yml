@@ -18,7 +18,7 @@ services:
           memory: 128m
 
   guacamole-db:
-    image: postgres:14.22 # renovate: datasource=docker
+    image: postgres:18.3 # renovate: datasource=docker
     container_name: guacamole_db
     restart: unless-stopped
     environment:
