@@ -1,0 +1,142 @@
+services:
+  db:
+    container_name: newm_mariadb
+    image: lscr.io/linuxserver/mariadb:11.4.9-r0-ls208 # renovate: datasource=docker
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+      MYSQL_PASSWORD: ${DB_USER_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      PGID: ${PGID}
+      PUID: ${PUID}
+      TZ: ${TZ}
+    volumes:
+      - ./mariadb/config:/config
+    networks:
+      - newm-ntwrk
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETUID
+      - SETGID
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1g
+        reservations:
+          cpus: "0.5"
+          memory: 512m
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  redis:
+    container_name: newm_redis
+    hostname: newm_redis
+    image: redis:8.6.1 # renovate: datasource=docker
+    restart: unless-stopped
+    volumes:
+      - ./redis:/data
+    networks:
+      - newm-ntwrk
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+          cpus: "0.25"
+        reservations:
+          memory: 64m
+
+  app:
+    container_name: newm_app
+    image: lscr.io/linuxserver/nextcloud:32.0.6-ls416 # renovate: datasource=docker
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      PGID: ${PGID}
+      PUID: ${PUID}
+      TZ: ${TZ}
+      DISABLE_IMAGEKICK: "true"
+    volumes:
+      - ./nextcloud/config:/config
+      - ${DATA_LOCATION}:/data
+      - ${TEMP_LOCATION}:/temp-external
+      - ./nextcloud/previews:/previews-on-ssd
+    networks:
+      - newm-ntwrk
+      - traefik
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETUID
+      - SETGID
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2g
+        reservations:
+          cpus: "1.0"
+          memory: 1g
+    healthcheck:
+      test: ["CMD", "curl", "-k", "-f", "https://localhost:443"]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+      start_period: 90s
+    labels:
+      - "traefik.enable=true"
+      # Security headers middleware
+      - "traefik.http.middlewares.newm-security-headers.headers.stspreload=true"
+      - "traefik.http.middlewares.newm-security-headers.headers.stsincludesubdomains=true"
+      - "traefik.http.middlewares.newm-security-headers.headers.stsseconds=15552000"
+      - "traefik.http.middlewares.newm-security-headers.headers.forcestsheader=true"
+      # Proxy headers middleware
+      - "traefik.http.middlewares.newm-proxy-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.middlewares.newm-proxy-headers.headers.customrequestheaders.X-Forwarded-Host=${TRAEFIK_DOMAIN}"
+      # CalDAV/CardDAV well-known redirect middleware
+      - "traefik.http.middlewares.newm-wellknown-redirect.redirectregex.permanent=true"
+      - "traefik.http.middlewares.newm-wellknown-redirect.redirectregex.regex=^https://(.*)/\\.well-known/(card|cal)dav"
+      - "traefik.http.middlewares.newm-wellknown-redirect.redirectregex.replacement=https://$${1}/remote.php/dav/"
+      # Router 1: Push notifications
+      - "traefik.http.routers.newm-push.rule=Host(`${TRAEFIK_DOMAIN}`) && PathPrefix(`/push`)"
+      - "traefik.http.routers.newm-push.entrypoints=websecure"
+      - "traefik.http.routers.newm-push.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+      - "traefik.http.routers.newm-push.priority=100"
+      - "traefik.http.routers.newm-push.service=service-newm-push"
+      - "traefik.http.routers.newm-push.middlewares=newm-security-headers@docker,newm-proxy-headers@docker"
+      - "traefik.http.services.service-newm-push.loadbalancer.server.port=80"
+      - "traefik.http.services.service-newm-push.loadbalancer.serversTransport=long-polling-transport@file"
+      # Router 2: Main
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.rule=Host(`${TRAEFIK_DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.service=service-newm-main"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.middlewares=newm-security-headers@docker,newm-proxy-headers@docker,newm-wellknown-redirect@docker"
+      - "traefik.http.services.service-newm-main.loadbalancer.server.port=80"
+      - "traefik.http.services.service-newm-main.loadbalancer.serversTransport=large-files-transport@file"
+
+networks:
+  newm-ntwrk:
+    name: newm-ntwrk
+  traefik:
+    external: true
