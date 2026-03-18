@@ -1,0 +1,41 @@
+services:
+  portainer:
+    image: portainer/portainer-ce:2.39.0 # renovate: datasource=docker
+    container_name: portainer
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./portainer-data:/data
+    ports:
+      - "9000:9000"
+    networks:
+      - portainer-ntwrk
+      - traefik
+    environment:
+      - TZ=${TZ}
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+          cpus: "0.50"
+        reservations:
+          memory: 128m
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.rule=Host(`${TRAEFIK_DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.service=portainer"
+      - "traefik.http.services.${TRAEFIK_ROUTER_NAME}.loadbalancer.server.port=9000"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.middlewares=authelia-auth@file"
+
+networks:
+  portainer-ntwrk:
+    name: portainer-ntwrk
+  traefik:
+    external: true
