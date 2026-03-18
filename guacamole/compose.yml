@@ -1,36 +1,61 @@
 services:
   guacd:
+    image: guacamole/guacd:1.6.0 # renovate: datasource=docker
     container_name: guacamole_guacd
-    image: guacamole/guacd:1.6.0
     restart: unless-stopped
     networks:
       - guac-internal
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "0.50"
+        reservations:
+          memory: 128m
 
   guacamole-db:
+    image: postgres:14.21 # renovate: datasource=docker
     container_name: guacamole_db
-    image: postgres:14.21
     restart: unless-stopped
     environment:
-      POSTGRES_DB: guacamole_db
-      POSTGRES_USER: guacamole_user
+      POSTGRES_DB: ${GUAC_DB_NAME}
+      POSTGRES_USER: ${GUAC_DB_USER}
       POSTGRES_PASSWORD: ${GUAC_DB_PASS}
     volumes:
       - ./guac-db-data:/var/lib/postgresql/data
     networks:
       - guac-internal
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETUID
+      - SETGID
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+          cpus: "0.25"
+        reservations:
+          memory: 128m
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U guacamole_user -d guacamole_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${GUAC_DB_USER} -d ${GUAC_DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 5
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      start_period: 10s
 
   guacamole:
+    image: guacamole/guacamole:1.6.0 # renovate: datasource=docker
     container_name: guacamole_app
-    image: guacamole/guacamole:1.6.0
     restart: unless-stopped
     depends_on:
       guacamole-db:
@@ -39,14 +64,30 @@ services:
         condition: service_started
     environment:
       GUACD_HOSTNAME: guacd
-      # Nombres de variables actualizados para evitar el error de conexión
       POSTGRESQL_HOSTNAME: guacamole-db
-      POSTGRESQL_DATABASE: guacamole_db
-      POSTGRESQL_USERNAME: guacamole_user
+      POSTGRESQL_DATABASE: ${GUAC_DB_NAME}
+      POSTGRESQL_USERNAME: ${GUAC_DB_USER}
       POSTGRESQL_PASSWORD: ${GUAC_DB_PASS}
     networks:
       - guac-internal
       - traefik
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "0.50"
+        reservations:
+          memory: 256m
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/guacamole/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${GUAC_ROUTER_NAME}.rule=Host(`${GUACAMOLE_DOMAIN}`)"
@@ -57,9 +98,9 @@ services:
       - "traefik.http.middlewares.guac-root-redirect.redirectregex.regex=^https?://([^/]+)/?$$"
       - "traefik.http.middlewares.guac-root-redirect.redirectregex.replacement=https://$$1/guacamole/"
       - "traefik.http.services.${GUAC_ROUTER_NAME}-svc.loadbalancer.server.port=8080"
-      - "com.centurylinklabs.watchtower.enable=true"
 
 networks:
   guac-internal:
+    internal: true
   traefik:
     external: true
