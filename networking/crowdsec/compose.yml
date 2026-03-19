@@ -15,9 +15,7 @@ services:
       - /home/note/nextcloud/nextcloud/data/nextcloud.log:/var/log/nextcloud/nextcloud.log:ro
       - /home/note/media/nextcloud/data/nextcloud.log:/var/log/nextcloud-newm/nextcloud.log:ro
       - /var/log/auth.log:/var/log/auth.log:ro
-      - /home/note/docker/jellyfin/config/log:/var/log/jellyfin:ro
       - /home/note/docker/n8n/data/n8nEventLog.log:/var/log/n8n/n8nEventLog.log:ro
-      - /home/note/docker/immich/logs:/var/log/immich:ro
       - crowdsec-db:/var/lib/crowdsec/data/
     networks:
       - traefik
