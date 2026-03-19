@@ -1,21 +1,34 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base"],
+  "extends": [
+    "config:recommended"
+  ],
   "docker-compose": {
     "enabled": true,
-    "fileMatch": ["(^|/)compose\\.yml$", "(^|/)docker-compose\\.yml$"]
+    "managerFilePatterns": [
+      "/(^|/)compose\\.yml$/",
+      "/(^|/)docker-compose\\.yml$/"
+    ]
   },
   "packageRules": [
     {
-      "matchUpdateTypes": ["minor", "patch"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
       "automerge": true,
       "automergeType": "pr",
       "automergeStrategy": "merge"
     },
     {
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "automerge": false,
-      "labels": ["major-update", "needs-review"]
+      "labels": [
+        "major-update",
+        "needs-review"
+      ]
     },
     {
       "matchPackageNames": [
@@ -25,16 +38,27 @@
         "n8nio/n8n"
       ],
       "automerge": false,
-      "labels": ["security-critical", "needs-review"]
+      "labels": [
+        "security-critical",
+        "needs-review"
+      ]
     },
     {
-      "matchPackageNames": ["postgres"],
-      "matchUpdateTypes": ["major"],
+      "matchPackageNames": [
+        "postgres"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "automerge": false,
       "enabled": false,
-      "labels": ["postgres-major-needs-migration"]
+      "labels": [
+        "postgres-major-needs-migration"
+      ]
     }
   ],
-  "schedule": ["every weekend"],
+  "schedule": [
+    "every weekend"
+  ],
   "prConcurrentLimit": 5
 }
