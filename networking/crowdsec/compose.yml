@@ -1,0 +1,62 @@
+services:
+  crowdsec:
+    image: crowdsecurity/crowdsec:latest # renovate: datasource=docker
+    container_name: crowdsec
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      GID: "${GID:-1000}"
+      COLLECTIONS: "crowdsecurity/linux crowdsecurity/traefik crowdsecurity/sshd crowdsecurity/iptables crowdsecurity/nextcloud crowdsecurity/http-cve LePresidente/authelia LePresidente/jellyfin gauth-fr/immich crowdsecurity/appsec-crs-exclusion-plugin-nextcloud"
+    volumes:
+      - ./crowdsec/:/etc/crowdsec/
+      - ../logs/traefik:/var/log/traefik:ro
+      - ../logs/authelia:/var/log/authelia:ro
+      - /home/note/nextcloud/nextcloud/data/nextcloud.log:/var/log/nextcloud/nextcloud.log:ro
+      - /home/note/media/nextcloud/data/nextcloud.log:/var/log/nextcloud-newm/nextcloud.log:ro
+      - /var/log/auth.log:/var/log/auth.log:ro
+      - /home/note/docker/jellyfin/config/log:/var/log/jellyfin:ro
+      - /home/note/docker/n8n/data/n8nEventLog.log:/var/log/n8n/n8nEventLog.log:ro
+      - /home/note/docker/immich/logs:/var/log/immich:ro
+      - crowdsec-db:/var/lib/crowdsec/data/
+    networks:
+      - traefik
+    ports:
+      - "8082:8080"
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "0.50"
+        reservations:
+          memory: 256m
+
+  crowdsec-bouncer:
+    image: docker.io/fbonalair/traefik-crowdsec-bouncer:latest # renovate: datasource=docker
+    container_name: bouncer-traefik
+    restart: unless-stopped
+    environment:
+      CROWDSEC_BOUNCER_API_KEY: ${CROWDSEC_BOUNCER_API_KEY}
+      CROWDSEC_AGENT_HOST: crowdsec:8080
+    networks:
+      - traefik
+    depends_on:
+      - crowdsec
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 64m
+          cpus: "0.10"
+        reservations:
+          memory: 32m
+
+volumes:
+  crowdsec-db:
+
+networks:
+  traefik:
+    external: true
