@@ -115,3 +115,35 @@ Roadmap
 [ ] Centralize alertmanager credentials (remove hardcoded secrets)
 [ ] Loki for container log aggregation
 [ ] Splunk or alternative for security log analysis
+
+## Known Issues & Technical Debt
+
+- **fbonalair/traefik-crowdsec-bouncer** — this image is abandoned (last release 2022). Migration to `ghcr.io/thespad/traefik-crowdsec-bouncer` is planned.
+- **alertmanager.yml** — ntfy credentials are hardcoded. Migration to envsubst or Docker secrets is pending.
+- **n8n** — currently using SQLite. Migration to PostgreSQL is planned.
+- **Collation warning** — n8n PostgreSQL container has a collation version mismatch (2.36 vs 2.41). Run `ALTER DATABASE n8n REFRESH COLLATION VERSION` to fix.
+
+## Version Pinning Status
+
+| Service | Pinned | Notes |
+|---------|--------|-------|
+| Traefik | ✅ v3.6.10 | |
+| Authelia | ✅ v4.39.16 | |
+| CrowdSec | ✅ v1.7.6 | |
+| CrowdSec Bouncer | ❌ latest | Abandoned image, migration pending |
+| WireGuard | ✅ 1.0.20250521-r1-ls105 | |
+| Nextcloud | ✅ 32.0.6-ls416 | |
+| Nextcloud Media | ✅ 32.0.6-ls416 | |
+| Immich | ⚠️ release | Per immich recommendation |
+| n8n | ✅ 2.12.2 | |
+| Grafana | ✅ 12.4.1 | |
+| Prometheus | ✅ v3.10.0 | |
+| Alertmanager | ✅ v0.31.1 | |
+| cAdvisor | ✅ v0.55.1 | |
+| Node Exporter | ✅ v1.10.2 | |
+| ntfy | ✅ v2.19.2 | |
+| Portainer | ✅ 2.39.0 | |
+| Guacamole | ✅ 1.6.0 | |
+| Obsidian (CouchDB) | ✅ 3.5.1 | |
+| Watchtower | ✅ 1.14.2 | |
+| ddclient | ✅ v4.0.0-ls219 | |
