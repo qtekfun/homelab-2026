@@ -33,10 +33,9 @@ jobs:
         service: ${{ fromJson(needs.detect-changes.outputs.services) }}
     steps:
       - name: Tailscale
-        uses: tailscale/github-action@v2
+        uses: tailscale/github-action@v3
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
-          version: latest
 
       - name: Deploy ${{ matrix.service }}
         uses: appleboy/ssh-action@v1
