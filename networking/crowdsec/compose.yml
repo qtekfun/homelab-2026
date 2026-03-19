@@ -1,6 +1,6 @@
 services:
   crowdsec:
-    image: crowdsecurity/crowdsec:latest # renovate: datasource=docker
+    image: crowdsecurity/crowdsec:v1.7.6 # renovate: datasource=docker
     container_name: crowdsec
     restart: unless-stopped
     env_file:
