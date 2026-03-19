@@ -1,0 +1,42 @@
+services:
+  traefik:
+    image: traefik:v3.6.10 # renovate: datasource=docker
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    environment:
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_DASHBOARD_DOMAIN}`)"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=authelia-auth@file"
+      - "traefik.http.routers.traefik-local.service=api@internal"
+      - "traefik.http.routers.traefik-local.middlewares=local-ip-whitelist@file"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./config/dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - ./data/certs/:/var/traefik/certs/:rw
+      - ../logs/traefik:/var/log/traefik
+    networks:
+      - traefik
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+          cpus: "0.50"
+        reservations:
+          memory: 128m
+
+networks:
+  traefik:
+    external: true
