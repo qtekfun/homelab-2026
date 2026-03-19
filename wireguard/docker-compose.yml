@@ -1,6 +1,6 @@
 services:
   wireguard:
-    image: lscr.io/linuxserver/wireguard:latest # renovate: datasource=docker
+    image: lscr.io/linuxserver/wireguard:1.0.20250521-r1-ls105 # renovate: datasource=docker
     container_name: wireguard
     cap_add:
       - NET_ADMIN
