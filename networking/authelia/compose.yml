@@ -1,0 +1,45 @@
+services:
+  authelia:
+    image: authelia/authelia:4.39.16 # renovate: datasource=docker
+    container_name: authelia
+    restart: unless-stopped
+    volumes:
+      - ./config:/config
+      - ../logs/authelia:/var/log/authelia
+    networks:
+      - traefik
+    env_file:
+      - .env
+    expose:
+      - 9091
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETGID
+      - SETUID
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+          cpus: "0.25"
+        reservations:
+          memory: 128m
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --tries=1 http://localhost:9091/api/health -O- | grep -q 'OK' || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.authelia.rule=Host(`${AUTHELIA_DOMAIN}`)"
+      - "traefik.http.routers.authelia.entrypoints=websecure"
+      - "traefik.http.routers.authelia.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+      - "traefik.http.services.authelia.loadbalancer.server.port=9091"
+
+networks:
+  traefik:
+    external: true
