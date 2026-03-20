@@ -32,12 +32,13 @@ services:
           memory: 256m
 
   crowdsec-bouncer:
-    image: docker.io/fbonalair/traefik-crowdsec-bouncer:latest # renovate: datasource=docker
+    image: ghcr.io/thespad/traefik-crowdsec-bouncer:latest # renovate: datasource=docker
     container_name: bouncer-traefik
     restart: unless-stopped
     environment:
       CROWDSEC_BOUNCER_API_KEY: ${CROWDSEC_BOUNCER_API_KEY}
       CROWDSEC_AGENT_HOST: crowdsec:8080
+      GIN_MODE: release
     networks:
       - traefik
     depends_on:
