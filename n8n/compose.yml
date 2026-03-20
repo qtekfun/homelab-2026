@@ -3,6 +3,7 @@ services:
     image: n8nio/n8n:2.13.1 # renovate: datasource=docker
     container_name: n8n_app
     restart: unless-stopped
+    init: true
     env_file:
       - .env
     volumes:
