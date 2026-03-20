@@ -1,0 +1,40 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:1.35.4 # renovate: datasource=docker
+    container_name: vaultwarden
+    restart: unless-stopped
+    environment:
+      WEBSOCKET_ENABLED: "true"
+      SIGNUPS_ALLOWED: "false"
+      ADMIN_TOKEN: ${ADMIN_TOKEN}
+    volumes:
+      - ./vw-data/:/data/
+    networks:
+      - traefik
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          memory: 100m
+          cpus: "0.25"
+        reservations:
+          memory: 50m
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/alive"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.rule=Host(`${TRAEFIK_DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.tls=true"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+
+networks:
+  traefik:
+    external: true
