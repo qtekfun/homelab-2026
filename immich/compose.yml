@@ -22,9 +22,9 @@ services:
       - no-new-privileges:true
     extra_hosts:
       - "auth.qtekfun.net:host-gateway"
-    group_add:
-      - "44"
-      - "992"
+    # group_add:
+    #   - "44"
+    #   - "992"
     # devices:
     #   - /dev/dri:/dev/dri
     labels:
@@ -54,9 +54,9 @@ services:
       - internal
     security_opt:
       - no-new-privileges:true
-    group_add:
-      - "44"
-      - "992"
+    # group_add:
+    #   - "44"
+    #   - "992"
     # devices:
     #   - /dev/dri:/dev/dri
     deploy:
