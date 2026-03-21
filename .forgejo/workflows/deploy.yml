@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       services: ${{ steps.diff.outputs.services }}
+      has_changes: ${{ steps.diff.outputs.has_changes }}
     steps:
       - uses: https://code.forgejo.org/actions/checkout@v4
         with:
@@ -23,7 +24,8 @@ jobs:
 
           if [ -z "$CHANGED" ]; then
             echo "services=[]" >> $GITHUB_OUTPUT
-            echo "Changed services: []"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "Changed services: none"
             exit 0
           fi
 
@@ -41,11 +43,12 @@ jobs:
           JSON="$JSON]"
 
           echo "services=$JSON" >> $GITHUB_OUTPUT
+          echo "has_changes=true" >> $GITHUB_OUTPUT
           echo "Changed services: $JSON"
 
   deploy:
     needs: changes
-    if: needs.changes.outputs.services != '[]' && needs.changes.outputs.services != ''
+    if: needs.changes.outputs.has_changes == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -54,15 +57,20 @@ jobs:
       - name: Deploy ${{ matrix.service }}
         env:
           SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          SERVICE: ${{ matrix.service }}
         run: |
+          if [ -z "$SERVICE" ]; then
+            echo "No service to deploy, skipping."
+            exit 0
+          fi
           mkdir -p ~/.ssh
           echo "$SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -p 22 yoshievolved >> ~/.ssh/known_hosts 2>/dev/null
-          ssh -i ~/.ssh/id_ed25519 -p 22 note@yoshievolved << 'ENDSSH'
-            cd /home/note/docker/${{ matrix.service }}
+          ssh -i ~/.ssh/id_ed25519 -p 22 note@yoshievolved "
+            cd /home/note/docker/$SERVICE
             git pull
             docker compose pull
             docker compose up -d --remove-orphans
             docker image prune -f
-          ENDSSH
+          "
