@@ -12,13 +12,13 @@ jobs:
   scan:
     name: Scan Secrets and Vulnerabilities
     runs-on: ubuntu-latest
-    container:
-      image: aquasec/trivy:latest
     steps:
       - uses: https://code.forgejo.org/actions/checkout@v6
 
-      - name: Run Trivy
+      - name: Install and Run Trivy
         run: |
+          export TRIVY_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | grep tag_name | cut -d'"' -f4 | tr -d 'v')
+          curl -sfL https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz | tar -xzf - -C /usr/local/bin trivy
           trivy fs . \
             --scanners vuln,secret,misconfig \
             --severity CRITICAL,HIGH \
