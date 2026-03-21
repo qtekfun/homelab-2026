@@ -1,6 +1,6 @@
 services:
   portainer:
-    image: portainer/portainer-ce:2.39.0 # renovate: datasource=docker
+    image: portainer/portainer-ce:2.39.1 # renovate: datasource=docker
     container_name: portainer
     restart: unless-stopped
     security_opt:
