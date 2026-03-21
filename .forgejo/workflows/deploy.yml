@@ -57,12 +57,9 @@ jobs:
       - name: Deploy ${{ matrix.service }}
         env:
           SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-          SERVICE: ${{ matrix.service }}
         run: |
-          if [ -z "$SERVICE" ]; then
-            echo "No service to deploy, skipping."
-            exit 0
-          fi
+          SERVICE="${{ matrix.service }}"
+          echo "Deploying: $SERVICE"
           mkdir -p ~/.ssh
           echo "$SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
