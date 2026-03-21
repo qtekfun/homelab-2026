@@ -1,6 +1,6 @@
 services:
   forgejo-runner:
-    image: code.forgejo.org/forgejo/runner:6 # renovate: datasource=docker
+    image: code.forgejo.org/forgejo/runner:12 # renovate: datasource=docker
     container_name: forgejo_runner
     restart: unless-stopped
     command: forgejo-runner daemon --config /data/config.yml
