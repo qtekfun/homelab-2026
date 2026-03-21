@@ -147,3 +147,33 @@ Roadmap
 | Obsidian (CouchDB) | ✅ 3.5.1 | |
 | Watchtower | ✅ 1.14.2 | |
 | ddclient | ✅ v4.0.0-ls219 | |
+
+## Alertmanager Credentials
+
+Alertmanager does not support environment variable substitution natively. The solution uses `envsubst` on the host to generate the config file before starting the container.
+
+### Setup
+
+The template file is committed to the repo:
+```
+monitoring/alertmanager/alertmanager.yml.tmpl
+```
+
+The generated file is gitignored:
+```
+monitoring/alertmanager/alertmanager.yml
+```
+
+### Generate config (required after cloning or changing credentials)
+```bash
+export $(grep -v '^#' monitoring/.env | xargs)
+envsubst < monitoring/alertmanager/alertmanager.yml.tmpl > monitoring/alertmanager/alertmanager.yml
+```
+
+### Variables required in monitoring/.env
+```
+NTFY_DOMAIN=ntfy.qtekfun.net
+NTFY_USER=
+NTFY_PASSWORD=
+NTFY_ALERT_TOPIC=alerts-monitoring
+```
