@@ -15,15 +15,11 @@ jobs:
     steps:
       - uses: https://code.forgejo.org/actions/checkout@v6
 
-      - name: Install Trivy
-        run: |
-          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
-
       - name: Run Trivy
-        run: |
-          trivy fs . \
-            --scanners vuln,secret,misconfig \
-            --severity CRITICAL,HIGH \
-            --ignore-unfixed \
-            --format table \
-            --exit-code 0
+        uses: https://code.forgejo.org/aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'table'
+          scanners: 'vuln,secret,misconfig'
+          severity: 'CRITICAL,HIGH'
