@@ -17,8 +17,7 @@ jobs:
 
       - name: Install and Run Trivy
         run: |
-          export TRIVY_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | grep tag_name | cut -d'"' -f4 | tr -d 'v')
-          curl -sfL https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz | tar -xzf - -C /usr/local/bin trivy
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.61.0
           trivy fs . \
             --scanners vuln,secret,misconfig \
             --severity CRITICAL,HIGH \
