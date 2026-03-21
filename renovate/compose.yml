@@ -1,0 +1,34 @@
+services:
+  renovate:
+    image: renovate/renovate:latest # renovate: datasource=docker
+    container_name: renovate
+    restart: unless-stopped
+    extra_hosts:
+      - "git.qtekfun.net:172.25.0.1"
+    environment:
+      - RENOVATE_PLATFORM=forgejo
+      - RENOVATE_ENDPOINT=http://forgejo:3000
+      - RENOVATE_TOKEN=${RENOVATE_TOKEN}
+      - RENOVATE_AUTODISCOVER=true
+      - RENOVATE_AUTODISCOVER_FILTER=God/*
+      - GIT_SSL_NO_VERIFY=true
+      - LOG_LEVEL=info
+    networks:
+      - traefik
+      - forgejo-internal
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "1.0"
+        reservations:
+          memory: 128m
+
+networks:
+  traefik:
+    external: true
+  forgejo-internal:
+    external: true
+    name: forgejo_forgejo-internal
