@@ -16,6 +16,7 @@ services:
       - "988"
     extra_hosts:
       - "git.qtekfun.net:172.25.0.1"
+      - "yoshievolved:172.25.0.1"
     security_opt:
       - no-new-privileges:true
     deploy:
