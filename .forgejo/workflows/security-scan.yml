@@ -9,27 +9,38 @@ on:
     - cron: '0 4 * * 0'
 
 jobs:
-  secrets:
-    name: Scan Secrets (Gitleaks)
+  scan:
+    name: Scan Secrets and Vulnerabilities
     runs-on: ubuntu-latest
     steps:
-      - uses: https://code.forgejo.org/actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Run Gitleaks
+      - name: Run Gitleaks and Grype via SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
         run: |
-          wget -q https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz
-          tar -xzf gitleaks_8.24.3_linux_x64.tar.gz gitleaks
-          ./gitleaks detect --source . --exit-code 1 --redact
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p 22 <deploy-host-ip> >> ~/.ssh/known_hosts 2>/dev/null
+          ssh -i ~/.ssh/id_ed25519 -p 22 deploy@<deploy-host-ip> << 'ENDSSH'
+            set -e
+            cd /home/deploy/docker
 
-  vulnerabilities:
-    name: Scan Vulnerabilities (Grype)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: https://code.forgejo.org/actions/checkout@v6
+            # Install gitleaks if not present
+            if ! command -v gitleaks &>/dev/null; then
+              wget -q https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz
+              tar -xzf gitleaks_8.24.3_linux_x64.tar.gz gitleaks
+              sudo mv gitleaks /usr/local/bin/
+              rm -f gitleaks_8.24.3_linux_x64.tar.gz
+            fi
 
-      - name: Run Grype
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
-          grype dir:. --fail-on critical
+            # Install grype if not present
+            if ! command -v grype &>/dev/null; then
+              curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+            fi
+
+            echo "=== Gitleaks: Secret Scan ==="
+            gitleaks detect --source . --exit-code 1 --redact
+
+            echo "=== Grype: Vulnerability Scan ==="
+            grype dir:. --fail-on critical
+          ENDSSH
