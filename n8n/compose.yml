@@ -9,6 +9,9 @@ services:
     volumes:
       - ./data:/home/node/.n8n
       - ./files:/files
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - traefik
       - n8n_ntwrk
@@ -31,19 +34,51 @@ services:
           memory: 256m
     labels:
       - "traefik.enable=true"
-      # Main router — protected by Authelia
       - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.rule=Host(`${TRAEFIK_DOMAIN}`)"
       - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.entrypoints=websecure"
       - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
       - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.middlewares=authelia-auth@file"
       - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.priority=1"
       - "traefik.http.services.${TRAEFIK_ROUTER_NAME}.loadbalancer.server.port=5678"
-      # Webhook router — public, no Authelia
       - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}-webhooks.rule=Host(`${TRAEFIK_DOMAIN}`) && PathPrefix(`/webhook/`)"
       - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}-webhooks.entrypoints=websecure"
       - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}-webhooks.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
       - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}-webhooks.service=${TRAEFIK_ROUTER_NAME}"
       - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}-webhooks.priority=10"
+
+  postgres:
+    image: postgres:17 # renovate: datasource=docker
+    container_name: n8n_postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - n8n_ntwrk
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETUID
+      - SETGID
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "0.50"
+        reservations:
+          memory: 128m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 networks:
   traefik:
