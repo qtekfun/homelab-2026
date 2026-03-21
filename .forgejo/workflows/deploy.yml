@@ -19,10 +19,20 @@ jobs:
         run: |
           CHANGED=$(git diff --name-only HEAD~1 HEAD \
             | grep -E '^[^/]+/(compose\.yml|docker-compose\.yml)' \
-            | cut -d'/' -f1 | sort -u \
-            | jq -R -s -c 'split("\n")[:-1]')
-          echo "services=$CHANGED" >> $GITHUB_OUTPUT
-          echo "Changed services: $CHANGED"
+            | cut -d'/' -f1 | sort -u)
+
+          JSON="["
+          FIRST=true
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            $FIRST || JSON="$JSON,"
+            JSON="$JSON\"$line\""
+            FIRST=false
+          done <<< "$CHANGED"
+          JSON="$JSON]"
+
+          echo "services=$JSON" >> $GITHUB_OUTPUT
+          echo "Changed services: $JSON"
 
   deploy:
     needs: detect-changes
