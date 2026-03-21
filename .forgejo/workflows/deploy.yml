@@ -52,15 +52,17 @@ jobs:
         service: ${{ fromJson(needs.detect-changes.outputs.services) }}
     steps:
       - name: Deploy ${{ matrix.service }}
-        uses: https://code.forgejo.org/actions/ssh-action@v1
-        with:
-          host: homelab-server
-          username: note
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          port: 22
-          script: |
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p 22 homelab-server >> ~/.ssh/known_hosts 2>/dev/null
+          ssh -i ~/.ssh/id_ed25519 -p 22 deploy@homelab-server << 'ENDSSH'
             cd /home/deploy/docker/${{ matrix.service }}
             git pull
             docker compose pull
             docker compose up -d --remove-orphans
             docker image prune -f
+          ENDSSH
