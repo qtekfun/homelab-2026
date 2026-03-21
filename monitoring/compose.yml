@@ -139,14 +139,19 @@ services:
           cpus: "0.25"
         reservations:
           memory: 32m
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --tries=1 http://localhost:9093/-/healthy -O- | grep -q 'ok' || exit 1"]
+      test: ["CMD-SHELL", "wget -q --tries=1 http://localhost:9093/-/healthy -O- | grep -q 'OK' || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 15s
     environment:
-      - NTFY_URL=http://${NTFY_USER}:${NTFY_PASSWORD}@ntfy:80/${NTFY_ALERT_TOPIC}
+      - NTFY_DOMAIN=${NTFY_DOMAIN}
+      - NTFY_USER=${NTFY_USER}
+      - NTFY_PASSWORD=${NTFY_PASSWORD}
+      - NTFY_ALERT_TOPIC=${NTFY_ALERT_TOPIC}
 
 volumes:
   grafana-data: {}
