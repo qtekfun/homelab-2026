@@ -2,25 +2,28 @@ name: Security Scan (Trivy)
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [master]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [master]
   schedule:
-    - cron: '0 4 * * 0' # Runs every Sunday at 4:00 AM
+    - cron: '0 4 * * 0'
 
 jobs:
-  scan-secrets-and-iac:
+  scan:
     name: Scan Secrets and Vulnerabilities
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - uses: https://code.forgejo.org/actions/checkout@v6
 
-      - name: Run Trivy vulnerability & secret scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          ignore-unfixed: true
-          format: 'table'
-          scanners: 'vuln,secret,misconfig'
-          severity: 'CRITICAL,HIGH'
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Run Trivy
+        run: |
+          trivy fs . \
+            --scanners vuln,secret,misconfig \
+            --severity CRITICAL,HIGH \
+            --ignore-unfixed \
+            --format table \
+            --exit-code 0
