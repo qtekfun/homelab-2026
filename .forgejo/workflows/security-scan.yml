@@ -12,14 +12,16 @@ jobs:
   scan:
     name: Scan Secrets and Vulnerabilities
     runs-on: ubuntu-latest
+    container:
+      image: aquasec/trivy:latest
     steps:
       - uses: https://code.forgejo.org/actions/checkout@v6
 
       - name: Run Trivy
-        uses: https://code.forgejo.org/aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          ignore-unfixed: true
-          format: 'table'
-          scanners: 'vuln,secret,misconfig'
-          severity: 'CRITICAL,HIGH'
+        run: |
+          trivy fs . \
+            --scanners vuln,secret,misconfig \
+            --severity CRITICAL,HIGH \
+            --ignore-unfixed \
+            --format table \
+            --exit-code 0
