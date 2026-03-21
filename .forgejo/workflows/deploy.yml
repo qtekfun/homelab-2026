@@ -54,7 +54,7 @@ jobs:
       - name: Deploy ${{ matrix.service }}
         uses: https://code.forgejo.org/actions/ssh-action@v1
         with:
-          host: <tailscale-ip>
+          host: homelab-server
           username: note
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
