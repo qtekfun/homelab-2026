@@ -16,6 +16,7 @@ services:
       - "988"
     extra_hosts:
       - "git.yourdomain.com:<forgejo-host-ip>"
+      - "homelab-server:<forgejo-host-ip>"
     security_opt:
       - no-new-privileges:true
     deploy:
