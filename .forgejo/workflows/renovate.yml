@@ -11,14 +11,11 @@ jobs:
     steps:
       - name: Run Renovate
         env:
-          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_KEY" > ~/.ssh/id_ed25519
+          printf '%s' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -p 22 <tailscale-ip> >> ~/.ssh/known_hosts 2>/dev/null
-          ssh -i ~/.ssh/id_ed25519 -p 22 note@<tailscale-ip> "
-            docker compose -f /home/deploy/docker/renovate/compose.yml \
-              --env-file /home/deploy/docker/renovate/.env \
-              run --rm renovate
-          "
+          ssh -i ~/.ssh/id_ed25519 -p 22 note@<tailscale-ip> \
+            "docker compose -f /home/deploy/docker/renovate/compose.yml --env-file /home/deploy/docker/renovate/.env run --rm renovate"
