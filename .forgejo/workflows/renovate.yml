@@ -14,7 +14,7 @@ jobs:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          printf '%s' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+          echo "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -p 22 <deploy-host-ip> >> ~/.ssh/known_hosts 2>/dev/null
           ssh -i ~/.ssh/id_ed25519 -p 22 deploy@<deploy-host-ip> \
