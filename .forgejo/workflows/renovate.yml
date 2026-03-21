@@ -2,23 +2,21 @@ name: Renovate
 
 on:
   schedule:
-    - cron: '0 8 * * 6'  # Every Saturday at 8:00 AM
-  workflow_dispatch:      # Allow manual trigger
+    - cron: '0 8 * * 6'
+  workflow_dispatch:
 
 jobs:
   renovate:
     runs-on: ubuntu-latest
     steps:
-      - name: Run Renovate
-        run: |
-          docker run --rm \
-            --network forgejo_forgejo-internal \
-            --add-host "git.yourdomain.com:<forgejo-host-ip>" \
-            -e RENOVATE_PLATFORM=forgejo \
-            -e RENOVATE_ENDPOINT=http://forgejo:3000 \
-            -e RENOVATE_TOKEN=${{ secrets.RENOVATE_TOKEN }} \
-            -e RENOVATE_AUTODISCOVER=true \
-            -e RENOVATE_AUTODISCOVER_FILTER=your-username/* \
-            -e GIT_SSL_NO_VERIFY=true \
-            -e LOG_LEVEL=info \
-            renovate/renovate:latest
+      - name: Run Renovate via SSH
+        uses: https://code.forgejo.org/actions/ssh-action@v1
+        with:
+          host: <tailscale-ip>
+          username: note
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: 22
+          script: |
+            docker compose -f /home/deploy/docker/renovate/compose.yml \
+              --env-file /home/deploy/docker/renovate/.env \
+              run --rm renovate
