@@ -19,15 +19,24 @@ jobs:
         run: |
           CHANGED=$(git diff --name-only HEAD~1 HEAD \
             | grep -E '^[^/]+/(compose\.yml|docker-compose\.yml)' \
-            | cut -d'/' -f1 | sort -u)
+            | cut -d'/' -f1 | sort -u || true)
+
+          if [ -z "$CHANGED" ]; then
+            echo "services=[]" >> $GITHUB_OUTPUT
+            echo "Changed services: []"
+            exit 0
+          fi
 
           JSON="["
           FIRST=true
           while IFS= read -r line; do
             [ -z "$line" ] && continue
-            $FIRST || JSON="$JSON,"
+            if [ "$FIRST" = true ]; then
+              FIRST=false
+            else
+              JSON="$JSON,"
+            fi
             JSON="$JSON\"$line\""
-            FIRST=false
           done <<< "$CHANGED"
           JSON="$JSON]"
 
