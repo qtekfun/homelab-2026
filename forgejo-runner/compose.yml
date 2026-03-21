@@ -3,15 +3,19 @@ services:
     image: code.forgejo.org/forgejo/runner:6 # renovate: datasource=docker
     container_name: forgejo_runner
     restart: unless-stopped
-    command: forgejo-runner daemon
+    command: forgejo-runner daemon --config /data/config.yml
     working_dir: /data
     volumes:
       - ./data:/data
+      - ./data/config.yml:/data/config.yml:ro
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - forgejo-internal
+      - traefik
     group_add:
       - "988"
+    extra_hosts:
+      - "git.qtekfun.net:172.25.0.1"
     security_opt:
       - no-new-privileges:true
     deploy:
@@ -26,3 +30,5 @@ networks:
   forgejo-internal:
     external: true
     name: forgejo_forgejo-internal
+  traefik:
+    external: true
