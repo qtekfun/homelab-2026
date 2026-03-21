@@ -76,3 +76,4 @@ disabled/**/pgdata/
 Thumbs.db
 *.swp
 *.swo
+monitoring/alertmanager/alertmanager.yml
