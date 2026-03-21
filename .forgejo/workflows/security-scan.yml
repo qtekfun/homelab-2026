@@ -1,4 +1,4 @@
-name: Security Scan (Trivy)
+name: Security Scan
 
 on:
   push:
@@ -9,18 +9,27 @@ on:
     - cron: '0 4 * * 0'
 
 jobs:
-  scan:
-    name: Scan Secrets and Vulnerabilities
+  secrets:
+    name: Scan Secrets (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: https://code.forgejo.org/actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        run: |
+          wget -q https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz
+          tar -xzf gitleaks_8.24.3_linux_x64.tar.gz gitleaks
+          ./gitleaks detect --source . --exit-code 1 --redact
+
+  vulnerabilities:
+    name: Scan Vulnerabilities (Grype)
     runs-on: ubuntu-latest
     steps:
       - uses: https://code.forgejo.org/actions/checkout@v6
 
-      - name: Install and Run Trivy
+      - name: Run Grype
         run: |
-          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.61.0
-          trivy fs . \
-            --scanners vuln,secret,misconfig \
-            --severity CRITICAL,HIGH \
-            --ignore-unfixed \
-            --format table \
-            --exit-code 0
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+          grype dir:. --fail-on critical
