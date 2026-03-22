@@ -1,0 +1,92 @@
+---
+http:
+  routers:
+    # newm-nextcloud-router:
+    #   rule: "Host(`newm.yourdomain.com`)"
+    #   entryPoints:
+    #     - websecure
+    #   service: newm-nextcloud-service
+    #   tls:
+    #     certResolver: cloudflare
+
+    proxmox-router:
+      rule: "Host(`proxmox.yourdomain.com`)"
+      service: proxmox-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+    fritzbox-router:
+      rule: "Host(`router.yourdomain.com`)"
+      service: fritzbox-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: cloudflare
+
+  services:
+    # newm-nextcloud-service:
+    #   loadBalancer:
+    #     servers:
+    #       - url: "https://192.168.1.15:4443"
+    #     passHostHeader: true
+    #     serversTransport: large-files-transport
+
+    proxmox-service:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.1.5:8006"
+        serversTransport: insecure-transport
+
+    fritzbox-service:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.1.1"
+        serversTransport: insecure-transport
+
+  serversTransports:
+    long-polling-transport:
+      forwardingTimeouts:
+        responseHeaderTimeout: "10m"
+
+    large-files-transport:
+      insecureSkipVerify: true
+      forwardingTimeouts:
+        dialTimeout: "10m"
+        responseHeaderTimeout: "2h"
+        idleConnTimeout: "2h"
+
+    insecure-transport:
+      insecureSkipVerify: true
+
+  middlewares:
+    local-ip-whitelist:
+      ipAllowList:
+        sourceRange:
+          - "192.168.0.0/16"
+          - "10.0.0.0/8"
+          - "127.0.0.1/32"
+    authelia-auth:
+      forwardauth:
+        address: "http://authelia:9091/api/verify?rd=https://auth.yourdomain.com/"
+        trustForwardHeader: true
+        authResponseHeaders:
+          - "Remote-User"
+          - "Remote-Groups"
+          - "Remote-Name"
+          - "Remote-Email"
+    crowdsec-bouncer:
+      forwardauth:
+        address: http://bouncer-traefik:8080/api/v1/forwardAuth
+        trustForwardHeader: true
+    vpn-whitelist:
+      ipAllowList:
+        sourceRange:
+          - "10.13.13.0/24"
+          - "100.64.0.0/10"
+          - "192.168.1.0/24"
+    no-bots-headers:
+      headers:
+        customResponseHeaders:
+          X-Robots-Tag: "noindex, nofollow, nosnippet, noarchive"
