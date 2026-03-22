@@ -1,0 +1,40 @@
+services:
+  excalidraw:
+    image: excalidraw/excalidraw:sha-4bfc5bb # renovate: datasource=docker
+    container_name: excalidraw
+    restart: unless-stopped
+    networks:
+      - traefik
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETUID
+      - SETGID
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+          cpus: "0.25"
+        reservations:
+          memory: 64m
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --tries=1 http://localhost:80 -O- > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.rule=Host(`${TRAEFIK_DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.middlewares=authelia-auth@file"
+      - "traefik.http.services.${TRAEFIK_ROUTER_NAME}.loadbalancer.server.port=80"
+
+networks:
+  traefik:
+    external: true
