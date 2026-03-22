@@ -4,7 +4,7 @@ Self-hosted Docker stack running on a Proxmox VM (Ubuntu), managed via Forgejo C
 
 ## Infrastructure
 
-- **Host**: Proxmox (your-cpu, XX GB RAM)
+- **Host**: Proxmox (CPU-model, XX GB RAM)
 - **VM**: Ubuntu (homelab-server), Tailscale IP: <tailscale-ip>
 - **Docker dir**: `/home/deploy/docker/`
 - **Repo**: git.yourdomain.com/your-username/homelab-2026

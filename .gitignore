@@ -78,3 +78,4 @@ Thumbs.db
 *.swo
 monitoring/alertmanager/alertmanager.yml
 homepage/.env
+claude-context.md
