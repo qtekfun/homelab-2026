@@ -33,7 +33,7 @@ jobs:
         service: ${{ fromJson(needs.detect-changes.outputs.services) }}
     steps:
       - name: Tailscale
-        uses: tailscale/github-action@v2
+        uses: tailscale/github-action@v4
         with:
           oauth-client-id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TAILSCALE_OAUTH_CLIENT_SECRET }}
