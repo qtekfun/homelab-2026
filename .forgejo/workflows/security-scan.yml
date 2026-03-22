@@ -26,15 +26,18 @@ jobs:
             set -e
             cd /home/deploy/docker
 
+            mkdir -p /home/deploy/.local/bin
+            export PATH="/home/deploy/.local/bin:$PATH"
             if ! command -v gitleaks &>/dev/null; then
               wget -q https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz
               tar -xzf gitleaks_8.24.3_linux_x64.tar.gz gitleaks
-              sudo mv gitleaks /usr/local/bin/
+              mv gitleaks /home/deploy/.local/bin/
               rm -f gitleaks_8.24.3_linux_x64.tar.gz
             fi
 
             if ! command -v grype &>/dev/null; then
-              curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+              curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /home/deploy/.local/bin
+              export PATH="/home/deploy/.local/bin:$PATH"
             fi
 
             echo "=== Gitleaks: Secret Scan ==="
