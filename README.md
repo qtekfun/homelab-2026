@@ -28,6 +28,8 @@ Self-hosted Docker stack running on a Proxmox VM (Ubuntu), managed via Forgejo C
 | Vaultwarden | bw.yourdomain.com | Vaultwarden |
 | Obsidian | sync.yourdomain.com | CouchDB |
 | Forgejo | git.yourdomain.com | Forgejo |
+| Homepage | dash.yourdomain.com | Authelia |
+| Excalidraw | draw.yourdomain.com | Authelia |
 | WireGuard | wg.yourdomain.com:1820 | - |
 | Watchtower | - | - |
 | ddclient | - | - |
