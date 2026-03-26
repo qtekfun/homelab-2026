@@ -14,8 +14,8 @@ services:
       - ../logs/authelia:/var/log/authelia:ro
       - ../logs/immich:/var/log/immich:ro
       - ../logs/n8n:/var/log/n8n:ro
-      - /home/deploy/nextcloud/data/nextcloud.log:/var/log/nextcloud/nextcloud.log:ro
-      - /home/deploy/media/nextcloud/data/nextcloud.log:/var/log/nextcloud-newm/nextcloud.log:ro
+      - /home/note/nextcloud/nextcloud/data/nextcloud.log:/var/log/nextcloud/nextcloud.log:ro
+      - /home/note/media/nextcloud/data/nextcloud.log:/var/log/nextcloud-newm/nextcloud.log:ro
       - /var/log/auth.log:/var/log/auth.log:ro
       - crowdsec-db:/var/lib/crowdsec/data/
     networks:
