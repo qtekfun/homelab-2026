@@ -36,7 +36,7 @@ jobs:
             fi
 
             if ! command -v grype &>/dev/null; then
-              curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /home/deploy/.local/bin
+              curl -sSfL https://raw.githubusercontent.com/anchore/grype/v0.88.0/install.sh | sh -s -- -b /home/deploy/.local/bin v0.88.0
               export PATH="/home/deploy/.local/bin:$PATH"
             fi
 
