@@ -9,6 +9,7 @@ services:
     volumes:
       - ./data:/home/node/.n8n
       - ./files:/files
+      - ../logs/n8n:/var/log/n8n
     depends_on:
       postgres:
         condition: service_healthy
