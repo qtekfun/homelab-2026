@@ -42,7 +42,7 @@ services:
 
   redis:
     container_name: nextcloud_redis
-    image: redis:8.6.1 # renovate: datasource=docker
+    image: redis:8.6.2 # renovate: datasource=docker
     restart: unless-stopped
     command: redis-server --save "" --appendonly no
     networks:
