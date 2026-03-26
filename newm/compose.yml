@@ -43,7 +43,7 @@ services:
   redis:
     container_name: newm_redis
     hostname: newm_redis
-    image: redis:8.6.1 # renovate: datasource=docker
+    image: redis:8.6.2 # renovate: datasource=docker
     restart: unless-stopped
     volumes:
       - ./redis:/data
