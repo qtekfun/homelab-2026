@@ -1,6 +1,6 @@
 services:
   watchtower:
-    image: ghcr.io/nicholas-fedor/watchtower:1.14.4 # renovate: datasource=docker
+    image: ghcr.io/nicholas-fedor/watchtower:1.15.0 # renovate: datasource=docker
     container_name: watchtower
     restart: unless-stopped
     volumes:
