@@ -6,7 +6,7 @@ services:
       - ${UPLOAD_LOCATION}:/usr/src/app/upload
       - ${THUMBS_LOCATION}:/usr/src/app/upload/thumbs
       - /etc/localtime:/etc/localtime:ro
-      - ./logs:/var/log/immich
+      - ../logs/immich:/var/log/immich
     env_file:
       - .env
     environment:
