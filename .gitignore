@@ -7,7 +7,12 @@
 **/db-data/
 **/redis/
 **/data/
-**/logs/
+# Service-local log directories (one level deep, not root centralized logs)
+*/logs/
+# Centralized logs dir — track directory structure, ignore log file content
+/logs/**
+!/logs/*/
+!/logs/*/.gitkeep
 
 # ============================================
 # LIVE CONFIGURATION DATA
@@ -16,9 +21,9 @@
 **/profiles/
 
 # Exceptions — configs we want to version
-!networking/traefik/config/
-!networking/authelia/config/
-!networking/crowdsec/config/
+!traefik/config/
+!authelia/config/
+!crowdsec/config/
 !ntfy/server.yml
 !monitoring/prometheus/
 !monitoring/alertmanager/
