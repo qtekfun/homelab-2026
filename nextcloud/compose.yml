@@ -73,7 +73,7 @@ services:
       PUID: ${PUID}
       TZ: ${TZ}
     volumes:
-      - /home/deploy/nextcloud/config:/config
+      - ${CONFIG_LOCATION}:/config
       - ${DATA_LOCATION}:/data
     networks:
       - nextcloud-ntwrk
