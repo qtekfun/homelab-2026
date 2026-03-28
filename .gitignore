@@ -66,6 +66,32 @@ n8n/files/
 newm/nextcloud/
 newm/mariadb/
 wireguard/config_old/
+# Backup files
+*.bck
+compose.yml.bck
+# Traefik secrets
+traefik/cf_api_token.txt
+traefik/config/traefik.yml
+# CrowdSec runtime data
+crowdsec/crowdsec/
+# Vaultwarden data
+vaultwarden/vw-data/
+# n8n exports and env backups
+n8n/export/
+n8n/.env.bck
+# Nextcloud runtime
+nextcloud/docker-compose.yml.yoshi
+nextcloud/mariadb/
+# Networking legacy dir
+networking/
+# Obsidian
+obsidian/
+# ntfy server config (runtime)
+ntfy/server.yml
+# Forgejo runner token
+forgejo-runner/data/.runner
+# Root db file
+.db
 
 # ============================================
 # DISABLED SERVICES — compose only, no data
