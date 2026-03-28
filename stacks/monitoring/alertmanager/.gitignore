@@ -1,0 +1,2 @@
+# Generated config — contains secrets via envsubst
+alertmanager.yml

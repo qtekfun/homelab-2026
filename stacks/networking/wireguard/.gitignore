@@ -1,0 +1,3 @@
+# Runtime config — contains private keys and peer configs
+config/
+config_old/

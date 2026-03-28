@@ -1,0 +1,4 @@
+# Runtime data and token
+data/.runner
+data/.cache/
+.ssh/

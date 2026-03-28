@@ -1,0 +1,4 @@
+# Runtime data
+nextcloud/
+mariadb/
+redis/

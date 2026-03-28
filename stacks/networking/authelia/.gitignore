@@ -1,0 +1,7 @@
+# Runtime data
+config/db.sqlite3
+config/notification.log
+
+# Sensitive configs — contain plaintext passwords and private keys
+config/users_database.yml
+config/configuration.yml
