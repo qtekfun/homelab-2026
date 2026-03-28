@@ -67,8 +67,8 @@ n8n/files/
 n8n/export/
 n8n/.env.bck
 newm/nextcloud/
-newm/mariadb/
-nextcloud/mariadb/
+newm/mariadb
+nextcloud/mariadb
 nextcloud/docker-compose.yml.yoshi
 wireguard/config_old/
 networking/
