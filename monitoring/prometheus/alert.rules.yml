@@ -1,0 +1,85 @@
+groups:
+  - name: Host and Node Alerts
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance {{ $labels.instance }} down"
+          description: "{{ $labels.job }} at {{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: HighCpuLoad
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU load on {{ $labels.instance }}"
+          description: "CPU load on {{ $labels.instance }} is over 85% (current value: {{ $value | printf \"%.2f\" }}%)."
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 < 15
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Less than 15% of memory is available on {{ $labels.instance }} (current value: {{ $value | printf \"%.2f\" }}%)."
+
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Less than 10% of disk space is free on the root filesystem of {{ $labels.instance }}."
+
+      - alert: DiskFillingUpFast
+        expr: predict_linear(node_filesystem_free_bytes{mountpoint="/"}[1h], 4 * 3600) < 0
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk is filling up fast on {{ $labels.instance }}"
+          description: "The root filesystem on {{ $labels.instance }} is predicted to run out of space in the next 4 hours."
+
+      - alert: TemperaturaAltaCPU
+        expr: avg by (instance) (node_thermal_zone_temp) > 80
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Temperatura de CPU crítica en {{ $labels.instance }}"
+          description: "La temperatura de la CPU en {{ $labels.instance }} ha superado los 80°C (valor actual: {{ $value | printf \"%.1f\" }}°C). Revisa la refrigeración."
+
+  - name: Docker Container Alerts
+    rules:
+      - alert: ContainerKilled
+        expr: increase(container_oom_events_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container was OOM-killed on {{ $labels.instance }}"
+          description: "Container {{ $labels.name }} on instance {{ $labels.instance }} was terminated by the kernel's OOM killer."
+
+      - alert: ContainerRestarting
+        expr: increase(container_restarts_total[5m]) > 2
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container is restarting frequently on {{ $labels.instance }}"
+          description: "Container {{ $labels.name }} on instance {{ $labels.instance }} has restarted more than twice in the last 5 minutes."
+
+      - alert: HighContainerCpuUsage
+        expr: (sum(rate(container_cpu_usage_seconds_total{image!=""}[2m])) by (name, instance)) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} has high CPU usage"
+          description: "The container {{ $labels.name }} on instance {{ $labels.instance }} is using over 80% CPU."
