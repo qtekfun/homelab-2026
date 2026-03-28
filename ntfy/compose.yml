@@ -1,6 +1,6 @@
 services:
   ntfy:
-    image: binwiederhier/ntfy:v2.20.1 # renovate: datasource=docker
+    image: binwiederhier/ntfy:v2.20.0 # renovate: datasource=docker
     container_name: ntfy
     command:
       - serve
