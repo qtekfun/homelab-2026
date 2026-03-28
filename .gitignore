@@ -14,22 +14,21 @@
 /logs/**
 !/logs/*/
 !/logs/*/.gitkeep
-
 # ============================================
 # LIVE CONFIGURATION DATA
 # ============================================
 **/config/
 **/profiles/
-
 # Exceptions — configs we want to version
 !traefik/config/
 !authelia/config/
 !crowdsec/config/
-!ntfy/server.yml
 !monitoring/prometheus/
 !monitoring/alertmanager/
 !obsidian/local.ini
-
+# Authelia runtime data (not config)
+authelia/config/db.sqlite3
+authelia/config/notification.log
 # ============================================
 # SECRETS AND CREDENTIALS
 # ============================================
@@ -41,7 +40,6 @@
 *.p12
 *.crt
 *.cer
-
 # ============================================
 # BACKUPS AND TEMPORARY FILES
 # ============================================
@@ -49,11 +47,12 @@
 *.tar.gz
 *.zip
 *.bak
+*.bck
 *.sql
 *.dump
 pre_migration_backup*
 initdb.sql
-
+compose.yml.bck
 # ============================================
 # SERVICE-SPECIFIC DIRECTORIES
 # ============================================
@@ -63,41 +62,33 @@ portainer/portainer-data/
 guacamole/guac-db-data/
 n8n/postgres-data/
 n8n/files/
+n8n/export/
+n8n/.env.bck
 newm/nextcloud/
 newm/mariadb/
+nextcloud/mariadb/
+nextcloud/docker-compose.yml.yoshi
 wireguard/config_old/
-# Backup files
-*.bck
-compose.yml.bck
+networking/
+obsidian/
+crowdsec/crowdsec/
+vaultwarden/vw-data/
+forgejo-runner/data/.runner
 # Traefik secrets
 traefik/cf_api_token.txt
 traefik/config/traefik.yml
-# CrowdSec runtime data
-crowdsec/crowdsec/
-# Vaultwarden data
-vaultwarden/vw-data/
-# n8n exports and env backups
-n8n/export/
-n8n/.env.bck
-# Nextcloud runtime
-nextcloud/docker-compose.yml.yoshi
-nextcloud/mariadb/
-# Networking legacy dir
-networking/
-# Obsidian
-obsidian/
 # ntfy server config (runtime)
 ntfy/server.yml
-# Forgejo runner token
-forgejo-runner/data/.runner
 # Root db file
 .db
-
 # ============================================
-# DISABLED SERVICES — compose only, no data
+# DISABLED SERVICES
 # ============================================
 disabled/
-
+# ============================================
+# RUNNER CACHE
+# ============================================
+forgejo-runner/data/.cache/
 # ============================================
 # SYSTEM
 # ============================================
