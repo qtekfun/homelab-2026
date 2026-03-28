@@ -26,9 +26,11 @@
 !monitoring/prometheus/
 !monitoring/alertmanager/
 !obsidian/local.ini
-# Authelia runtime data (not config)
+# Authelia runtime data and sensitive configs
 authelia/config/db.sqlite3
 authelia/config/notification.log
+authelia/config/users_database.yml
+authelia/config/configuration.yml
 # ============================================
 # SECRETS AND CREDENTIALS
 # ============================================
