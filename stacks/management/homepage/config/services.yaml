@@ -1,0 +1,74 @@
+---
+- Networking:
+    - Traefik:
+        icon: traefik.png
+        href: https://proxy.qtekfun.net
+        description: Reverse Proxy
+    - Authelia:
+        icon: authelia.png
+        href: https://auth.qtekfun.net
+        description: Authentication
+
+- Management:
+    - Portainer:
+        icon: portainer.png
+        href: https://manager.qtekfun.net
+        description: Docker Management
+    - Proxmox:
+        icon: proxmox.png
+        href: https://proxmox.qtekfun.net
+        description: Hypervisor
+    - Fritzbox:
+        icon: fritzbox.png
+        href: https://router.qtekfun.net
+        description: Router
+    - Forgejo:
+        icon: gitea.png
+        href: https://git.qtekfun.net
+        description: Git
+
+- Services:
+    - Nextcloud:
+        icon: nextcloud.png
+        href: https://nxtc.qtekfun.net
+        description: Cloud Storage
+    - Nextcloud Media:
+        icon: nextcloud.png
+        href: https://newm.qtekfun.net
+        description: Media Cloud Storage
+    - Immich:
+        icon: immich.png
+        href: https://photos.qtekfun.net
+        description: Photo Management
+    - Vaultwarden:
+        icon: vaultwarden.png
+        href: https://bw.qtekfun.net
+        description: Password Manager
+
+- Monitoring:
+    - Grafana:
+        icon: grafana.png
+        href: https://grafana.qtekfun.net
+        description: Dashboards
+    - ntfy:
+        icon: ntfy.png
+        href: https://ntfy.qtekfun.net
+        description: Notifications
+
+- Tools:
+    - Excalidraw:
+        icon: excalidraw.png
+        href: https://draw.qtekfun.net
+        description: Whiteboard
+
+- Automation:
+    - n8n:
+        icon: n8n.png
+        href: https://n8n.qtekfun.net
+        description: Workflow Automation
+
+- Remote Access:
+    - Guacamole:
+        icon: guacamole.png
+        href: https://remote.qtekfun.net
+        description: Remote Desktop

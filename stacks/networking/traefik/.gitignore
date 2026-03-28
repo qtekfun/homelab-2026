@@ -1,0 +1,8 @@
+# Runtime data
+data/
+
+# Secrets
+cf_api_token.txt
+
+# Live traefik config (contains secrets)
+config/traefik.yml

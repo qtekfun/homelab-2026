@@ -1,47 +1,14 @@
 # ============================================
-# DATA AND DATABASES
-# ============================================
-**/postgres/
-**/postgres-data/
-**/mariadb/
-**/db-data/
-**/redis/
-**/data/
-!forgejo-runner/data/config.yml
-# Service-local log directories (one level deep, not root centralized logs)
-*/logs/
-# Centralized logs dir — track directory structure, ignore log file content
-/logs/**
-!/logs/*/
-!/logs/*/.gitkeep
-# ============================================
-# LIVE CONFIGURATION DATA
-# ============================================
-**/config/
-**/profiles/
-# Exceptions — configs we want to version
-!traefik/config/
-!authelia/config/
-!crowdsec/config/
-!monitoring/prometheus/
-!monitoring/alertmanager/
-!obsidian/local.ini
-# Authelia runtime data and sensitive configs
-authelia/config/db.sqlite3
-authelia/config/notification.log
-authelia/config/users_database.yml
-authelia/config/configuration.yml
-# ============================================
 # SECRETS AND CREDENTIALS
 # ============================================
 .env
 **/.env
-**/authelia-temp-keys/
 *.key
 *.pem
 *.p12
 *.crt
 *.cer
+
 # ============================================
 # BACKUPS AND TEMPORARY FILES
 # ============================================
@@ -52,52 +19,27 @@ authelia/config/configuration.yml
 *.bck
 *.sql
 *.dump
+*.swp
+*.swo
 pre_migration_backup*
 initdb.sql
-compose.yml.bck
+
 # ============================================
-# SERVICE-SPECIFIC DIRECTORIES
+# CENTRALIZED LOGS
 # ============================================
-immich/postgres/
-kasm/data/
-portainer/portainer-data/
-guacamole/guac-db-data/
-n8n/postgres-data/
-n8n/files/
-n8n/export/
-n8n/.env.bck
-newm/nextcloud/
-newm/mariadb
-nextcloud/mariadb
-nextcloud/docker-compose.yml.yoshi
-wireguard/config_old/
-networking/
-obsidian/
-crowdsec/crowdsec/
-vaultwarden/vw-data/
-forgejo-runner/data/.runner
-# Traefik secrets
-traefik/cf_api_token.txt
-traefik/config/traefik.yml
-# ntfy server config (runtime)
-ntfy/server.yml
-# Root db file
-.db
+/logs/**
+!/logs/*/
+!/logs/*/.gitkeep
+
 # ============================================
 # DISABLED SERVICES
 # ============================================
 disabled/
-# ============================================
-# RUNNER CACHE
-# ============================================
-forgejo-runner/data/.cache/
+
 # ============================================
 # SYSTEM
 # ============================================
 .DS_Store
 Thumbs.db
-*.swp
-*.swo
-monitoring/alertmanager/alertmanager.yml
-homepage/.env
 claude-context.md
+.db

@@ -1,0 +1,40 @@
+services:
+  couchdb:
+    image: couchdb:3.5.1 # renovate: datasource=docker
+    container_name: obsidian-db
+    restart: unless-stopped
+    environment:
+      - COUCHDB_USER=${COUCHDB_USER}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+    volumes:
+      - ./db-data:/opt/couchdb/data
+      - ./local.ini:/opt/couchdb/etc/local.ini:ro
+    networks:
+      - traefik
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETUID
+      - SETGID
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+          cpus: "0.25"
+        reservations:
+          memory: 64m
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.obsidian-sync.rule=Host(`${OBSIDIAN_SYNC_DOMAIN}`)"
+      - "traefik.http.routers.obsidian-sync.entrypoints=websecure"
+      - "traefik.http.routers.obsidian-sync.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+      - "traefik.http.services.obsidian-sync.loadbalancer.server.port=5984"
+
+networks:
+  traefik:
+    external: true
