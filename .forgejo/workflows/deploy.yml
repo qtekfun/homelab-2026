@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       service:
-        description: 'Service to deploy (e.g. ntfy, grafana). Leave empty to auto-detect.'
+        description: 'Stack to deploy (e.g. stacks/networking, stacks/monitoring). Leave empty to auto-detect.'
         required: false
         default: ''
 
@@ -24,7 +24,7 @@ jobs:
       - name: Detect changed services
         id: diff
         run: |
-          # Manual dispatch with explicit service
+          # Manual dispatch with explicit stack
           if [ -n "${{ github.event.inputs.service }}" ]; then
             SVC="${{ github.event.inputs.service }}"
             echo "services=[\"$SVC\"]" >> $GITHUB_OUTPUT
@@ -33,10 +33,11 @@ jobs:
             exit 0
           fi
 
-          # Auto-detect from git diff
+          # Auto-detect from git diff — supports both flat and stacks/ structure
           CHANGED=$(git diff --name-only HEAD~1 HEAD \
-            | grep -E '^[^/]+/(compose\.yml|docker-compose\.yml)' \
-            | cut -d'/' -f1 | sort -u || true)
+            | grep -E '^(stacks/[^/]+|[^/]+)/(compose\.yml|docker-compose\.yml)' \
+            | sed 's|/\(compose\.yml\|docker-compose\.yml\)||' \
+            | sort -u || true)
 
           if [ -z "$CHANGED" ]; then
             echo "services=[]" >> $GITHUB_OUTPUT
@@ -79,6 +80,7 @@ jobs:
         run: |
           SERVICE="${{ matrix.service }}"
           echo "Deploying: $SERVICE"
+
           mkdir -p ~/.ssh
           echo "$SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
