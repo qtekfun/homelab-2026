@@ -1,0 +1,8 @@
+# Grype ignore list — false positives or non-exploitable vulnerabilities
+# Each entry documents why it's ignored.
+ignore:
+  # Nextcloud plugin frontend dependencies — not directly exploitable,
+  # vulnerabilities are in bundled npm packages inside plugin source code.
+  - vulnerability: GHSA-qqc2-7f54-r7wp  # firstrunwizard npm dep
+  - vulnerability: GHSA-j5pv-9r3q-hm4w  # richdocuments npm dep
+  - vulnerability: GHSA-x92j-g74p-p2hq  # twofactor_totp npm dep
