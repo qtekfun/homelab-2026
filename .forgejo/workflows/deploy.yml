@@ -58,15 +58,20 @@ jobs:
       - name: Deploy ${{ matrix.service }}
         env:
           SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          HOST: "192.168.188.6"
+          USER: "note"
+          DEPLOY_PATH: "/home/note/docker"
         run: |
           SERVICE="${{ matrix.service }}"
           echo "Deploying: $SERVICE"
+
           mkdir -p ~/.ssh
           echo "$SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p 22 homelab-server >> ~/.ssh/known_hosts 2>/dev/null
-          ssh -i ~/.ssh/id_ed25519 -p 22 deploy@homelab-server "
-            cd /home/deploy/docker/$SERVICE
+          ssh-keyscan -p 22 $HOST >> ~/.ssh/known_hosts 2>/dev/null
+
+          ssh -i ~/.ssh/id_ed25519 -p 22 $USER@$HOST "
+            cd $DEPLOY_PATH/$SERVICE
             git pull
             docker compose pull
             docker compose up -d --remove-orphans
