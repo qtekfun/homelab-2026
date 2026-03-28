@@ -43,7 +43,7 @@ services:
           memory: 64m
 
   qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:5.0.4 # renovate: datasource=docker
+    image: lscr.io/linuxserver/qbittorrent:5.1.4 # renovate: datasource=docker
     container_name: qbittorrent
     restart: unless-stopped
     network_mode: "service:gluetun"
