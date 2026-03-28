@@ -50,7 +50,7 @@ jobs:
             gitleaks detect --source . --exit-code 1 --redact
 
             echo "=== Grype: Vulnerability Scan ==="
-            grype db update
+            grype db update || (grype db delete && grype db update)
             grype dir:. \
               --fail-on critical \
               --exclude './disabled/**' \
@@ -58,5 +58,8 @@ jobs:
               --exclude './**/postgres-data/**' \
               --exclude './**/db-data/**' \
               --exclude './**/portainer-data/**' \
-              --exclude './**/guac-db-data/**'
+              --exclude './**/guac-db-data/**' \
+              --exclude './guacamole/guac-db-data/**' \
+              --exclude './immich/postgres/**' \
+              --exclude './n8n/postgres-data/**'
           ENDSSH
