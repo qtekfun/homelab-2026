@@ -1,0 +1,43 @@
+services:
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:2.3.0 # renovate: datasource=docker
+    container_name: prowlarr
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data:/config
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Madrid}
+    networks:
+      - traefik
+      - media
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prowlarr.rule=Host(`${TRAEFIK_DOMAIN}`)"
+      - "traefik.http.routers.prowlarr.entrypoints=websecure"
+      - "traefik.http.routers.prowlarr.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+      - "traefik.http.routers.prowlarr.middlewares=authelia-auth@file"
+      - "traefik.http.services.prowlarr.loadbalancer.server.port=9696"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9696/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+          cpus: "0.50"
+        reservations:
+          memory: 64m
+
+networks:
+  traefik:
+    external: true
+  media:
+    external: true
