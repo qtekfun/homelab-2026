@@ -96,10 +96,7 @@ forgejo-runner/data/.runner
 # ============================================
 # DISABLED SERVICES — compose only, no data
 # ============================================
-disabled/**/data/
-disabled/**/postgres/
-disabled/**/db/
-disabled/**/pgdata/
+disabled/
 
 # ============================================
 # SYSTEM
