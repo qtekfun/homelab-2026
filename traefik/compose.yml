@@ -1,6 +1,6 @@
 services:
   traefik:
-    image: traefik:v3.6.11 # renovate: datasource=docker
+    image: traefik:v3.6.12 # renovate: datasource=docker
     container_name: traefik
     restart: unless-stopped
     ports:
