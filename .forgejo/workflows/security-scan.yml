@@ -61,5 +61,7 @@ jobs:
               --exclude './**/guac-db-data/**' \
               --exclude './guacamole/guac-db-data/**' \
               --exclude './immich/postgres/**' \
-              --exclude './n8n/postgres-data/**'
+              --exclude './n8n/postgres-data/**' \
+              --exclude './nextcloud/**' \
+              --exclude './newm/**'
           ENDSSH
