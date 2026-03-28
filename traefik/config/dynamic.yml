@@ -2,7 +2,7 @@
 http:
   routers:
     # newm-nextcloud-router:
-    #   rule: "Host(`newm.yourdomain.com`)"
+    #   rule: "Host(`newm.qtekfun.net`)"
     #   entryPoints:
     #     - websecure
     #   service: newm-nextcloud-service
@@ -10,7 +10,7 @@ http:
     #     certResolver: cloudflare
 
     proxmox-router:
-      rule: "Host(`proxmox.yourdomain.com`)"
+      rule: "Host(`proxmox.qtekfun.net`)"
       service: proxmox-service
       entryPoints:
         - websecure
@@ -18,7 +18,7 @@ http:
         certResolver: cloudflare
 
     fritzbox-router:
-      rule: "Host(`router.yourdomain.com`)"
+      rule: "Host(`router.qtekfun.net`)"
       service: fritzbox-service
       entryPoints:
         - websecure
@@ -69,7 +69,7 @@ http:
           - "127.0.0.1/32"
     authelia-auth:
       forwardauth:
-        address: "http://authelia:9091/api/verify?rd=https://auth.yourdomain.com/"
+        address: "http://authelia:9091/api/verify?rd=https://auth.qtekfun.net/"
         trustForwardHeader: true
         authResponseHeaders:
           - "Remote-User"
