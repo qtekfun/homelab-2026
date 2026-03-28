@@ -63,5 +63,6 @@ jobs:
               --exclude './immich/postgres/**' \
               --exclude './n8n/postgres-data/**' \
               --exclude './nextcloud/**' \
-              --exclude './newm/**'
+              --exclude './newm/**' \
+              --exclude './forgejo-runner/data/.cache/**'
           ENDSSH
