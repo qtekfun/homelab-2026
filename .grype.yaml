@@ -6,3 +6,7 @@ ignore:
   - vulnerability: GHSA-qqc2-7f54-r7wp  # firstrunwizard npm dep
   - vulnerability: GHSA-j5pv-9r3q-hm4w  # richdocuments npm dep
   - vulnerability: GHSA-x92j-g74p-p2hq  # twofactor_totp npm dep
+  - vulnerability: GHSA-fjxv-7rqg-78g4  # form-data - nextcloud plugin dep
+  - vulnerability: GHSA-95m3-7q98-8xr5  # sha.js - nextcloud plugin dep
+  - vulnerability: GHSA-46fq-v4pg-gr3j  # files_pdfviewer - nextcloud plugin
+  - vulnerability: GHSA-m7jm-9gc2-mpf2  # fast-xml-parser - nextcloud plugin dep
