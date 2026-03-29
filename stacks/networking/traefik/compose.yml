@@ -24,7 +24,7 @@ services:
       - ./config/traefik.yml:/etc/traefik/traefik.yml:ro
       - ./config/dynamic.yml:/etc/traefik/dynamic.yml:ro
       - ./data/certs/:/var/traefik/certs/:rw
-      - ../logs/traefik:/var/log/traefik
+      - ../../../logs/traefik:/var/log/traefik
     networks:
       - traefik
     security_opt:
