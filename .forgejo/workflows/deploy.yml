@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       service:
-        description: 'Stack to deploy (e.g. stacks/networking, stacks/monitoring). Leave empty to auto-detect.'
+        description: 'Stack to deploy (e.g. stacks/media/debrid). Leave empty to auto-detect.'
         required: false
         default: ''
 
@@ -24,7 +24,7 @@ jobs:
       - name: Detect changed services
         id: diff
         run: |
-          # Manual dispatch with explicit stack
+          # 1. Prioridad: Despliegue manual
           if [ -n "${{ github.event.inputs.service }}" ]; then
             SVC="${{ github.event.inputs.service }}"
             echo "services=[\"$SVC\"]" >> $GITHUB_OUTPUT
@@ -33,30 +33,28 @@ jobs:
             exit 0
           fi
 
-          # Auto-detect from git diff — supports both flat and stacks/ structure
+          # 2. Auto-detección: Busca cualquier compose modificado y extrae su directorio raíz
+          # Filtra para ignorar cambios en archivos que no sean de despliegue
           CHANGED=$(git diff --name-only HEAD~1 HEAD \
-            | grep -E '^(stacks/[^/]+|[^/]+)/(compose\.yml|docker-compose\.yml)' \
-            | sed 's|/\(compose\.yml\|docker-compose\.yml\)||' \
+            | grep -E '(compose\.yml|docker-compose\.yml)$' \
+            | xargs -I {} dirname {} \
             | sort -u || true)
 
           if [ -z "$CHANGED" ]; then
             echo "services=[]" >> $GITHUB_OUTPUT
             echo "has_changes=false" >> $GITHUB_OUTPUT
-            echo "Changed services: none"
+            echo "No services changed."
             exit 0
           fi
 
+          # 3. Formatear lista a JSON Array para la matriz
+          # Usamos printf para construir el JSON de forma segura sin dependencias externas
           JSON="["
           FIRST=true
-          while IFS= read -r line; do
-            [ -z "$line" ] && continue
-            if [ "$FIRST" = true ]; then
-              FIRST=false
-            else
-              JSON="$JSON,"
-            fi
+          for line in $CHANGED; do
+            if [ "$FIRST" = true ]; then FIRST=false; else JSON="$JSON,"; fi
             JSON="$JSON\"$line\""
-          done <<< "$CHANGED"
+          done
           JSON="$JSON]"
 
           echo "services=$JSON" >> $GITHUB_OUTPUT
@@ -68,6 +66,7 @@ jobs:
     if: needs.changes.outputs.has_changes == 'true'
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         service: ${{ fromJson(needs.changes.outputs.services) }}
     steps:
@@ -79,17 +78,25 @@ jobs:
           DEPLOY_PATH: "/home/note/docker"
         run: |
           SERVICE="${{ matrix.service }}"
-          echo "Deploying: $SERVICE"
+          echo "Processing: $SERVICE"
 
           mkdir -p ~/.ssh
           echo "$SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -p 22 $HOST >> ~/.ssh/known_hosts 2>/dev/null
 
+          # Ejecución remota
           ssh -i ~/.ssh/id_ed25519 -p 22 $USER@$HOST "
-            cd $DEPLOY_PATH/$SERVICE
-            git pull
-            docker compose pull
-            docker compose up -d --remove-orphans
-            docker image prune -f
+            set -e
+            if [ -d \"$DEPLOY_PATH/$SERVICE\" ]; then
+              cd \"$DEPLOY_PATH/$SERVICE\"
+              echo \"Updating $SERVICE in server...\"
+              git pull origin master
+              docker compose pull
+              docker compose up -d --remove-orphans
+              docker image prune -f
+            else
+              echo \"Error: Directory $DEPLOY_PATH/$SERVICE not found on host.\"
+              exit 1
+            fi
           "
