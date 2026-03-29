@@ -1,0 +1,63 @@
+services:
+  zurg:
+    image: ghcr.io/debridmediamanager/zurg-testing:v0.9.3-final # renovate: datasource=docker
+    container_name: zurg
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/zurg:/app/data
+      - ./config.yml:/app/config.yml:ro
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+    networks:
+      - media
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "1.0"
+        reservations:
+          memory: 128m
+
+  rclone:
+    image: rclone/rclone:1.73.3 # renovate: datasource=docker
+    container_name: rclone
+    restart: unless-stopped
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse:/dev/fuse
+    security_opt:
+      - apparmor:unconfined
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/rclone:/config/rclone
+      - /mnt/alldebrid:/data:shared
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+    command: >
+      mount zurg: /data
+      --allow-other
+      --dir-cache-time 10s
+      --vfs-cache-mode full
+      --vfs-cache-max-size 10G
+      --vfs-read-chunk-size 128M
+      --buffer-size 256M
+    networks:
+      - media
+    depends_on:
+      - zurg
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+          cpus: "1.0"
+        reservations:
+          memory: 256m
+
+networks:
+  media:
+    external: true
