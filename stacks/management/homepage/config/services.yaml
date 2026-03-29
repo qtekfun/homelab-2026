@@ -94,3 +94,7 @@
         icon: navidrome.png
         href: https://music.qtekfun.net
         description: Music Streaming
+    - qBittorrent:
+        icon: qbittorrent.png
+        href: http://192.168.188.6:8090
+        description: Torrent Client
