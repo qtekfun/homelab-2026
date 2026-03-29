@@ -72,3 +72,25 @@
         icon: guacamole.png
         href: https://remote.qtekfun.net
         description: Remote Desktop
+
+- Media:
+    - Prowlarr:
+        icon: prowlarr.png
+        href: https://prowlarr.qtekfun.net
+        description: Indexer Manager
+    - Lidarr:
+        icon: lidarr.png
+        href: https://lidarr.qtekfun.net
+        description: Music Manager
+    - Radarr:
+        icon: radarr.png
+        href: https://radarr.qtekfun.net
+        description: Movie Manager
+    - Sonarr:
+        icon: sonarr.png
+        href: https://sonarr.qtekfun.net
+        description: TV Series Manager
+    - Navidrome:
+        icon: navidrome.png
+        href: https://music.qtekfun.net
+        description: Music Streaming
