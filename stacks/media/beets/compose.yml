@@ -1,0 +1,29 @@
+services:
+  beets:
+    image: lscr.io/linuxserver/beets:2.3.1 # renovate: datasource=docker
+    container_name: beets
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data:/config
+      - /mnt/downloads:/downloads
+      - /mnt/music:/music
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Madrid}
+    networks:
+      - media
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+          cpus: "0.50"
+        reservations:
+          memory: 64m
+
+networks:
+  media:
+    external: true
