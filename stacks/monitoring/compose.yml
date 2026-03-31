@@ -84,13 +84,15 @@ services:
       - ALL
     cap_add:
       - DAC_READ_SEARCH
+      - SYS_PTRACE
+      - SYS_ADMIN
     deploy:
       resources:
         limits:
-          memory: 256m
-          cpus: "0.25"
+          memory: 512m
+          cpus: "1.0"
         reservations:
-          memory: 64m
+          memory: 128m
 
   node-exporter:
     image: prom/node-exporter:v1.10.2 # renovate: datasource=docker
@@ -128,6 +130,7 @@ services:
       - prometheus
     networks:
       - monitoring
+      - traefik
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -159,6 +162,7 @@ volumes:
 
 networks:
   monitoring:
+    name: monitoring
     internal: true
   traefik:
     external: true
