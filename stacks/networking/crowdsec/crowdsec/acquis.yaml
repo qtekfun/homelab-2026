@@ -1,6 +1,6 @@
 ---
-source: file                                                                                                                                                          
-filenames:                                                
+source: file
+filenames:
   - /var/log/traefik/access.log
 labels:
   type: traefik
@@ -8,10 +8,10 @@ labels:
 source: file
 filenames:
   - /var/log/authelia/authelia.log
-labels:                                                                                                                                                               
+labels:
   type: authelia
----                                                                                                                                                                   
-source: file                                              
+---
+source: file
 filenames:
   - /var/log/immich/*.log
 labels:
@@ -20,24 +20,23 @@ labels:
 source: file
 filenames:
   - /var/log/nextcloud/nextcloud.log
-labels:                                                                                                                                                               
+labels:
   type: nextcloud
----                                                                                                                                                                   
-source: file                                              
+---
+source: file
 filenames:
   - /var/log/nextcloud-newm/nextcloud.log
 labels:
   type: nextcloud
 ---
 source: file
-filenames:                                                                                                                                                            
+filenames:
   - /var/log/auth.log
-labels:                                                                                                                                                               
-  type: syslog 
+labels:
+  type: syslog
 ---
 source: file
 filenames:
   - /var/log/n8n/n8nEventLog.log
 labels:
   type: n8n
-
