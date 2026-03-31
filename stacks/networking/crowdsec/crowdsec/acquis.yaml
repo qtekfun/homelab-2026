@@ -1,0 +1,43 @@
+---
+source: file                                                                                                                                                          
+filenames:                                                
+  - /var/log/traefik/access.log
+labels:
+  type: traefik
+---
+source: file
+filenames:
+  - /var/log/authelia/authelia.log
+labels:                                                                                                                                                               
+  type: authelia
+---                                                                                                                                                                   
+source: file                                              
+filenames:
+  - /var/log/immich/*.log
+labels:
+  type: immich
+---
+source: file
+filenames:
+  - /var/log/nextcloud/nextcloud.log
+labels:                                                                                                                                                               
+  type: nextcloud
+---                                                                                                                                                                   
+source: file                                              
+filenames:
+  - /var/log/nextcloud-newm/nextcloud.log
+labels:
+  type: nextcloud
+---
+source: file
+filenames:                                                                                                                                                            
+  - /var/log/auth.log
+labels:                                                                                                                                                               
+  type: syslog 
+---
+source: file
+filenames:
+  - /var/log/n8n/n8nEventLog.log
+labels:
+  type: n8n
+

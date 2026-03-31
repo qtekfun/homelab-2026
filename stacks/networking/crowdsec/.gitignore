@@ -1,2 +1,11 @@
-# Runtime data
-crowdsec/
+# Runtime data managed by CrowdSec (hub, parsers, scenarios, collections...)
+crowdsec/*
+
+# Manual config files that should be versioned
+!crowdsec/profiles.yaml
+!crowdsec/acquis.yaml
+!crowdsec/acquis.d/
+!crowdsec/acquis.d/**
+!crowdsec/config.yaml
+!crowdsec/notifications/
+!crowdsec/notifications/**
