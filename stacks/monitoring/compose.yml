@@ -126,6 +126,8 @@ services:
     restart: unless-stopped
     volumes:
       - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ./alertmanager/entrypoint.sh:/entrypoint.sh:ro
+      - ./alertmanager/templates:/etc/alertmanager/templates:ro
     depends_on:
       - prometheus
     networks:
