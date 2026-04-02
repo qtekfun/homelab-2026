@@ -9,7 +9,7 @@ services:
     environment:
       - TZ=${TZ}
     volumes:
-      - /var/cache/ntfy:/var/cache/ntfy
+      - ${DATA_DIR}:/data
       - ./server.yml:/etc/ntfy/server.yml:ro
     restart: unless-stopped
     networks:
