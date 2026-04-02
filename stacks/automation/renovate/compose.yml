@@ -10,6 +10,7 @@ services:
       - RENOVATE_AUTODISCOVER=true
       - GIT_SSL_NO_VERIFY=true
       - LOG_LEVEL=info
+      - GITHUB_COM_TOKEN=${GITHUB_COM_TOKEN}
     networks:
       - traefik
       - forgejo-internal
