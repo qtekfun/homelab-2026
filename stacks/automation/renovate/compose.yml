@@ -3,14 +3,11 @@ services:
     image: renovate/renovate:latest # renovate: datasource=docker
     container_name: renovate
     restart: unless-stopped
-    extra_hosts:
-      - "git.yourdomain.com:<forgejo-host-ip>"
     environment:
       - RENOVATE_PLATFORM=forgejo
       - RENOVATE_ENDPOINT=http://forgejo:3000
       - RENOVATE_TOKEN=${RENOVATE_TOKEN}
       - RENOVATE_AUTODISCOVER=true
-      - RENOVATE_AUTODISCOVER_FILTER=your-username/*
       - GIT_SSL_NO_VERIFY=true
       - LOG_LEVEL=info
     networks:
@@ -25,7 +22,6 @@ services:
           cpus: "1.0"
         reservations:
           memory: 128m
-
 networks:
   traefik:
     external: true
