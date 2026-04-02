@@ -10,7 +10,7 @@ services:
       - TZ=${TZ}
     volumes:
       - ${DATA_DIR}:/data
-      - ./server.yml:/etc/ntfy/server.yml:ro
+      - ${DATA_DIR}/server.yml:/etc/ntfy/server.yml:ro
     restart: unless-stopped
     networks:
       - traefik
