@@ -7,8 +7,8 @@ services:
       - COUCHDB_USER=${COUCHDB_USER}
       - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
     volumes:
-      - ./db-data:/opt/couchdb/data
-      - ./local.ini:/opt/couchdb/etc/local.ini:ro
+      - ${DATA_DIR}/db-data:/opt/couchdb/data
+      - ${DATA_DIR}/local.ini:/opt/couchdb/etc/local.ini:ro
     networks:
       - traefik
     security_opt:
