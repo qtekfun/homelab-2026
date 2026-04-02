@@ -5,9 +5,9 @@ services:
     restart: unless-stopped
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./data:/config
-      - /mnt/downloads:/downloads
-      - /mnt/music:/music
+      - ${DATA_DIR}/data:/config
+      - ${DATA_DIR}/downloads:/downloads
+      - ${DATA_DIR}/music:/music
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
