@@ -17,7 +17,7 @@ services:
       ALLOWEDIPS: 0.0.0.0/0
       LOG_CONFS: true
     volumes:
-      - ./config:/config
+      - ${DATA_DIR}:/config
       - /lib/modules:/lib/modules:ro
     ports:
       - "${SERVERPORT}:51820/udp"
