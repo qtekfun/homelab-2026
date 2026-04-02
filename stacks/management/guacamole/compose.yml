@@ -26,7 +26,7 @@ services:
       POSTGRES_USER: ${GUAC_DB_USER}
       POSTGRES_PASSWORD: ${GUAC_DB_PASS}
     volumes:
-      - ./guac-db-data:/var/lib/postgresql/data
+      - ${DATA_DIR}/db:/var/lib/postgresql/data
     networks:
       - guac-internal
     security_opt:
