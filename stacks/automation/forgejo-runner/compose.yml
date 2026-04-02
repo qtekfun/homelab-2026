@@ -7,8 +7,8 @@ services:
     command: forgejo-runner daemon --config /data/config.yml
     working_dir: /data
     volumes:
-      - ./data:/data
-      - ./data/config.yml:/data/config.yml:ro
+      - ${DATA_DIR}:/data
+      - ${DATA_DIR}/config.yml:/data/config.yml:ro
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - forgejo-internal
