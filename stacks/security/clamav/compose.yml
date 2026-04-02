@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     volumes:
       - ${DATA_DIR}:/var/lib/clamav
+      - ${DATA_DIR}/clamd.conf:/etc/clamav/clamd.conf:ro
     networks:
       - clamav
     security_opt:
