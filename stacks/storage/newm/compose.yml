@@ -1,6 +1,6 @@
 services:
   db:
-    container_name: newm_mariadb
+    container_name: ${INSTANCE_PREFIX}_mariadb
     image: lscr.io/linuxserver/mariadb:11.4.9-r0-ls208 # renovate: datasource=docker
     restart: unless-stopped
     environment:
@@ -12,9 +12,9 @@ services:
       PUID: ${PUID}
       TZ: ${TZ}
     volumes:
-      - ./mariadb/config:/config
+      - ${MARIADB_CONFIG}:/config
     networks:
-      - newm-ntwrk
+      - nextcloud
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -41,14 +41,16 @@ services:
       start_period: 10s
 
   redis:
-    container_name: newm_redis
-    hostname: newm_redis
+    container_name: ${INSTANCE_PREFIX}_redis
     image: redis:8.6.2 # renovate: datasource=docker
     restart: unless-stopped
-    volumes:
-      - ./redis:/data
+    command: redis-server --save "" --appendonly no
     networks:
-      - newm-ntwrk
+      - nextcloud
+    tmpfs:
+      - /data
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -58,7 +60,7 @@ services:
           memory: 64m
 
   app:
-    container_name: newm_app
+    container_name: ${INSTANCE_PREFIX}_app
     image: lscr.io/linuxserver/nextcloud:32.0.6-ls416 # renovate: datasource=docker
     restart: unless-stopped
     depends_on:
@@ -72,13 +74,14 @@ services:
       TZ: ${TZ}
       DISABLE_IMAGEKICK: "true"
     volumes:
-      - ./nextcloud/config:/config
+      - ${CONFIG_LOCATION}:/config
       - ${DATA_LOCATION}:/data
       - ${TEMP_LOCATION}:/temp-external
-      - ./nextcloud/previews:/previews-on-ssd
+      - ${LOGS_DIR}:/config/log
     networks:
-      - newm-ntwrk
+      - nextcloud
       - traefik
+      - clamav
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -105,19 +108,15 @@ services:
       start_period: 90s
     labels:
       - "traefik.enable=true"
-      # Security headers middleware
       - "traefik.http.middlewares.newm-security-headers.headers.stspreload=true"
       - "traefik.http.middlewares.newm-security-headers.headers.stsincludesubdomains=true"
       - "traefik.http.middlewares.newm-security-headers.headers.stsseconds=15552000"
       - "traefik.http.middlewares.newm-security-headers.headers.forcestsheader=true"
-      # Proxy headers middleware
       - "traefik.http.middlewares.newm-proxy-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.middlewares.newm-proxy-headers.headers.customrequestheaders.X-Forwarded-Host=${TRAEFIK_DOMAIN}"
-      # CalDAV/CardDAV well-known redirect middleware
       - "traefik.http.middlewares.newm-wellknown-redirect.redirectregex.permanent=true"
       - "traefik.http.middlewares.newm-wellknown-redirect.redirectregex.regex=^https://(.*)/\\.well-known/(card|cal)dav"
       - "traefik.http.middlewares.newm-wellknown-redirect.redirectregex.replacement=https://$${1}/remote.php/dav/"
-      # Router 1: Push notifications
       - "traefik.http.routers.newm-push.rule=Host(`${TRAEFIK_DOMAIN}`) && PathPrefix(`/push`)"
       - "traefik.http.routers.newm-push.entrypoints=websecure"
       - "traefik.http.routers.newm-push.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
@@ -126,7 +125,6 @@ services:
       - "traefik.http.routers.newm-push.middlewares=newm-security-headers@docker,newm-proxy-headers@docker"
       - "traefik.http.services.service-newm-push.loadbalancer.server.port=80"
       - "traefik.http.services.service-newm-push.loadbalancer.serversTransport=long-polling-transport@file"
-      # Router 2: Main
       - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.rule=Host(`${TRAEFIK_DOMAIN}`)"
       - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.entrypoints=websecure"
       - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
@@ -136,7 +134,10 @@ services:
       - "traefik.http.services.service-newm-main.loadbalancer.serversTransport=large-files-transport@file"
 
 networks:
-  newm-ntwrk:
-    name: newm-ntwrk
+  nextcloud:
+    name: ${INSTANCE_PREFIX}
+  clamav:
+    external: true
+    name: clamav
   traefik:
     external: true
