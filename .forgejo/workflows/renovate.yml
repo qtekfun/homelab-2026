@@ -1,10 +1,8 @@
 name: Renovate
-
 on:
   schedule:
     - cron: '0 8 * * 6'
   workflow_dispatch:
-
 jobs:
   renovate:
     runs-on: ubuntu-latest
@@ -12,10 +10,12 @@ jobs:
       - name: Run Renovate
         env:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         run: |
           mkdir -p ~/.ssh
           echo "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p 22 <deploy-host-ip> >> ~/.ssh/known_hosts 2>/dev/null
-          ssh -i ~/.ssh/id_ed25519 -p 22 deploy@<deploy-host-ip> \
-            "docker compose -f /home/deploy/docker/renovate/compose.yml --env-file /home/deploy/docker/renovate/.env run --rm renovate"
+          ssh-keyscan -p 22 $DEPLOY_HOST >> ~/.ssh/known_hosts 2>/dev/null
+          ssh -i ~/.ssh/id_ed25519 -p 22 $DEPLOY_USER@$DEPLOY_HOST \
+            "docker compose -f /home/note/docker/stacks/automation/renovate/compose.yml run --rm renovate"

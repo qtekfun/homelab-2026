@@ -2,7 +2,7 @@ services:
   renovate:
     image: renovate/renovate:latest # renovate: datasource=docker
     container_name: renovate
-    restart: unless-stopped
+    restart: "no"
     environment:
       - RENOVATE_PLATFORM=forgejo
       - RENOVATE_ENDPOINT=http://forgejo:3000
