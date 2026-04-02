@@ -10,7 +10,7 @@ services:
       - PGID=${PGID}
       - HOMEPAGE_ALLOWED_HOSTS=${TRAEFIK_DOMAIN}
     volumes:
-      - ./config:/app/config
+      - ${DATA_DIR}:/app/config
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - traefik
