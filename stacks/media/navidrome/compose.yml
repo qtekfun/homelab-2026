@@ -6,8 +6,8 @@ services:
     user: "${PUID:-1000}:${PGID:-1000}"
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./data:/data
-      - /mnt/music:/music:ro
+      - ${DATA_DIR}/data:/data
+      - ${DATA_DIR}/music:/music:ro
     environment:
       - TZ=${TZ:-Europe/Madrid}
       - ND_MUSICFOLDER=/music
