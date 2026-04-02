@@ -12,7 +12,7 @@ services:
       - "8000:8000"                        # Gluetun control API
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./data/gluetun:/gluetun
+      - ${DATA_DIR}/gluetun:/gluetun
     environment:
       - TZ=${TZ}
       - VPN_SERVICE_PROVIDER=airvpn
@@ -52,8 +52,8 @@ services:
         condition: service_healthy
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./data/qbittorrent:/config
-      - /mnt/downloads:/downloads
+      - ${DATA_DIR}/qbittorrent:/config
+      - ${DATA_DIR}/downloads:/downloads
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
