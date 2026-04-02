@@ -23,8 +23,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/traefik.yml:/etc/traefik/traefik.yml:ro
       - ./config/dynamic.yml:/etc/traefik/dynamic.yml:ro
-      - /home/note/docker/data/traefik/certs/:/var/traefik/certs/:rw
-      - /home/note/docker/logs/traefik:/var/log/traefik
+      - ${DATA_DIR}/certs/:/var/traefik/certs/:rw
+      - ${LOGS_DIR}:/var/log/traefik
     networks:
       - traefik
     security_opt:
