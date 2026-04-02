@@ -1,0 +1,142 @@
+services:
+  db:
+    container_name: ${INSTANCE_PREFIX}_mariadb
+    image: lscr.io/linuxserver/mariadb:11.4.9-r0-ls208 # renovate: datasource=docker
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+      MYSQL_PASSWORD: ${DB_USER_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      PGID: ${PGID}
+      PUID: ${PUID}
+      TZ: ${TZ}
+    volumes:
+      - ${MARIADB_CONFIG}:/config
+    networks:
+      - nextcloud
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETUID
+      - SETGID
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1g
+        reservations:
+          cpus: "0.5"
+          memory: 512m
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  redis:
+    container_name: ${INSTANCE_PREFIX}_redis
+    image: redis:8.6.2 # renovate: datasource=docker
+    restart: unless-stopped
+    command: redis-server --save "" --appendonly no
+    networks:
+      - nextcloud
+    tmpfs:
+      - /data
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+          cpus: "0.25"
+        reservations:
+          memory: 64m
+
+  app:
+    container_name: ${INSTANCE_PREFIX}_app
+    image: lscr.io/linuxserver/nextcloud:32.0.6-ls416 # renovate: datasource=docker
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      PGID: ${PGID}
+      PUID: ${PUID}
+      TZ: ${TZ}
+      DISABLE_IMAGEKICK: "true"
+    volumes:
+      - ${CONFIG_LOCATION}:/config
+      - ${DATA_LOCATION}:/data
+      - ${LOGS_DIR}:/config/log
+    networks:
+      - nextcloud
+      - traefik
+      - clamav
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETUID
+      - SETGID
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2g
+        reservations:
+          cpus: "1.0"
+          memory: 1g
+    healthcheck:
+      test: ["CMD", "curl", "-k", "-f", "https://localhost:443"]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+      start_period: 90s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.nxtc-security-headers.headers.stspreload=true"
+      - "traefik.http.middlewares.nxtc-security-headers.headers.stsincludesubdomains=true"
+      - "traefik.http.middlewares.nxtc-security-headers.headers.stsseconds=15552000"
+      - "traefik.http.middlewares.nxtc-security-headers.headers.forcestsheader=true"
+      - "traefik.http.middlewares.nxtc-proxy-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.middlewares.nxtc-proxy-headers.headers.customrequestheaders.X-Forwarded-Host=${TRAEFIK_DOMAIN}"
+      - "traefik.http.middlewares.nxtc-wellknown-redirect.redirectregex.permanent=true"
+      - "traefik.http.middlewares.nxtc-wellknown-redirect.redirectregex.regex=^https://(.*)/\\.well-known/(card|cal)dav"
+      - "traefik.http.middlewares.nxtc-wellknown-redirect.redirectregex.replacement=https://$${1}/remote.php/dav/"
+      - "traefik.http.routers.nxtc-push.rule=Host(`${TRAEFIK_DOMAIN}`) && PathPrefix(`/push`)"
+      - "traefik.http.routers.nxtc-push.entrypoints=websecure"
+      - "traefik.http.routers.nxtc-push.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+      - "traefik.http.routers.nxtc-push.priority=100"
+      - "traefik.http.routers.nxtc-push.service=service-nxtc-push"
+      - "traefik.http.routers.nxtc-push.middlewares=nxtc-security-headers@docker,nxtc-proxy-headers@docker"
+      - "traefik.http.services.service-nxtc-push.loadbalancer.server.port=80"
+      - "traefik.http.services.service-nxtc-push.loadbalancer.serversTransport=long-polling-transport@file"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.rule=Host(`${TRAEFIK_DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.service=service-nxtc-main"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.middlewares=nxtc-security-headers@docker,nxtc-proxy-headers@docker,nxtc-wellknown-redirect@docker"
+      - "traefik.http.services.service-nxtc-main.loadbalancer.server.port=80"
+      - "traefik.http.services.service-nxtc-main.loadbalancer.serversTransport=large-files-transport@file"
+
+networks:
+  nextcloud:
+    name: ${INSTANCE_PREFIX}
+  clamav:
+    external: true
+    name: clamav
+  traefik:
+    external: true
