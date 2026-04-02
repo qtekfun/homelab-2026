@@ -7,9 +7,9 @@ services:
     env_file:
       - .env
     volumes:
-      - ./data:/home/node/.n8n
-      - ./files:/files
-      - ../logs/n8n:/var/log/n8n
+      - ${DATA_DIR}/data:/home/node/.n8n
+      - ${DATA_DIR}/files:/files
+      - ${LOGS_DIR}/n8n:/var/log/n8n
     depends_on:
       postgres:
         condition: service_healthy
@@ -54,7 +54,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+      - ${DATA_DIR}/postgres:/var/lib/postgresql/data
     networks:
       - n8n_ntwrk
     security_opt:
