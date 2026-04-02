@@ -7,7 +7,7 @@ services:
       PGID: ${PGID}
       TZ: ${TZ}
     volumes:
-      - ./config:/config
+      - ${DATA_DIR}:/config
     restart: unless-stopped
     networks:
       - ddclient_ntwrk
