@@ -8,7 +8,6 @@
 *.p12
 *.crt
 *.cer
-
 # ============================================
 # BACKUPS AND TEMPORARY FILES
 # ============================================
@@ -23,19 +22,6 @@
 *.swo
 pre_migration_backup*
 initdb.sql
-
-# ============================================
-# CENTRALIZED LOGS
-# ============================================
-/logs/**
-!/logs/*/
-!/logs/*/.gitkeep
-
-# ============================================
-# DISABLED SERVICES
-# ============================================
-disabled/
-
 # ============================================
 # SYSTEM
 # ============================================
@@ -43,24 +29,24 @@ disabled/
 Thumbs.db
 claude-context.md
 .db
-
+disabled/
 # ============================================
-# CONTAINER RUNTIME DATA (root-owned)
+# CENTRALIZED LOGS (structure only, no content)
 # ============================================
-**/postgres-data/
-**/pg-data/
-**/redis/
-**/db-data/
-**/portainer-data/
-**/guac-db-data/
-**/vw-data/
-**/gluetun/
-**/nextcloud/data/
-**/logs/immich/
-**/logs/authelia/
-**/logs/traefik/
-**/logs/n8n/
-**/logs/crowdsec/
+/logs/**
+!/logs/
+!/logs/**/
+!/logs/**/.gitkeep
+# ============================================
+# PERSISTENT DATA (structure only, no content)
+# ============================================
+/data/**
+!/data/
+!/data/**/
+!/data/**/.gitkeep
+# ============================================
+# CROWDSEC RUNTIME DATA
+# ============================================
 stacks/networking/crowdsec/crowdsec/hub/
 stacks/networking/crowdsec/crowdsec/parsers/
 stacks/networking/crowdsec/crowdsec/scenarios/
