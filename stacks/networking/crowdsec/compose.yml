@@ -9,13 +9,13 @@ services:
       GID: "${GID:-1000}"
       COLLECTIONS: "crowdsecurity/linux crowdsecurity/traefik crowdsecurity/sshd crowdsecurity/iptables crowdsecurity/nextcloud crowdsecurity/http-cve LePresidente/authelia LePresidente/jellyfin gauth-fr/immich crowdsecurity/appsec-crs-exclusion-plugin-nextcloud"
     volumes:
-      - ./crowdsec/:/etc/crowdsec/
-      - ../logs/traefik:/var/log/traefik:ro
-      - ../logs/authelia:/var/log/authelia:ro
-      - ../logs/immich:/var/log/immich:ro
-      - ../logs/n8n:/var/log/n8n:ro
-      - /home/note/nextcloud/nextcloud/data/nextcloud.log:/var/log/nextcloud/nextcloud.log:ro
-      - /home/note/media/nextcloud/data/nextcloud.log:/var/log/nextcloud-newm/nextcloud.log:ro
+      - ${DATA_DIR}/:/etc/crowdsec/
+      - ${LOGS_DIR}/traefik:/var/log/traefik:ro
+      # - ${LOGS_DIR}/authelia:/var/log/authelia:ro      # uncomment when authelia is up
+      # - ${LOGS_DIR}/immich:/var/log/immich:ro          # uncomment when immich is up
+      # - ${LOGS_DIR}/n8n:/var/log/n8n:ro                # uncomment when n8n is up
+      # - /home/note/docker/data/nextcloud/logs/nextcloud.log:/var/log/nextcloud/nextcloud.log:ro        # uncomment when nextcloud is up
+      # - /home/note/docker/data/newm/logs/nextcloud.log:/var/log/nextcloud-newm/nextcloud.log:ro       # uncomment when newm is up
       - /var/log/auth.log:/var/log/auth.log:ro
       - crowdsec-db:/var/lib/crowdsec/data/
     networks:
