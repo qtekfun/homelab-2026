@@ -5,8 +5,8 @@ services:
     restart: unless-stopped
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./data/zurg:/app/data
-      - ./config.yml:/app/config.yml:ro
+      - ${DATA_DIR}/zurg:/app/data
+      - ${DATA_DIR}/config.yml:/app/config.yml:ro
     environment:
       - TZ=${TZ:-Europe/Madrid}
     networks:
@@ -34,7 +34,7 @@ services:
       - no-new-privileges:true
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./data/rclone:/config/rclone
+      - ${DATA_DIR}/rclone:/config/rclone
       - /mnt/alldebrid:/data:shared
     environment:
       - TZ=${TZ:-Europe/Madrid}
@@ -46,6 +46,7 @@ services:
       --vfs-cache-max-size 10G
       --vfs-read-chunk-size 128M
       --buffer-size 256M
+      --allow-non-empty
     networks:
       - media
     depends_on:
