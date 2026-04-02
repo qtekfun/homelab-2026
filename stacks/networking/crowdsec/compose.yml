@@ -12,7 +12,7 @@ services:
       - ${DATA_DIR}/:/etc/crowdsec/
       - ${LOGS_DIR}/traefik:/var/log/traefik:ro
       - ${LOGS_DIR}/authelia:/var/log/authelia:ro
-      # - ${LOGS_DIR}/immich:/var/log/immich:ro          # uncomment when immich is up
+      - ${LOGS_DIR}/immich:/var/log/immich:ro
       # - ${LOGS_DIR}/n8n:/var/log/n8n:ro                # uncomment when n8n is up
       # - /home/note/docker/data/nextcloud/logs/nextcloud.log:/var/log/nextcloud/nextcloud.log:ro        # uncomment when nextcloud is up
       # - /home/note/docker/data/newm/logs/nextcloud.log:/var/log/nextcloud-newm/nextcloud.log:ro       # uncomment when newm is up
