@@ -3,10 +3,10 @@ services:
     container_name: immich_server
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION}
     volumes:
-      - ${UPLOAD_LOCATION}:/usr/src/app/upload
-      - ${THUMBS_LOCATION}:/usr/src/app/upload/thumbs
+      - ${DATA_DIR}/uploads:/usr/src/app/upload
+      - ${DATA_DIR}/thumbs:/usr/src/app/upload/thumbs
       - /etc/localtime:/etc/localtime:ro
-      - ../logs/immich:/var/log/immich
+      - ${LOGS_DIR}/immich:/var/log/immich
     env_file:
       - .env
     environment:
@@ -20,8 +20,6 @@ services:
       - internal
     security_opt:
       - no-new-privileges:true
-    extra_hosts:
-      - "auth.yourdomain.com:host-gateway"
     # group_add:
     #   - "44"
     #   - "992"
@@ -44,7 +42,7 @@ services:
     container_name: immich_machine_learning
     image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION}
     volumes:
-      - /mnt/immich/model-cache:/cache
+      - ${DATA_DIR}/model-cache:/cache
     depends_on:
       - immich-server
     env_file:
@@ -95,7 +93,7 @@ services:
       POSTGRES_DB: ${DB_DATABASE_NAME}
       POSTGRES_INITDB_ARGS: '--data-checksums'
     volumes:
-      - ./postgres:/var/lib/postgresql/data
+      - ${DATA_DIR}/postgres:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
       - internal
