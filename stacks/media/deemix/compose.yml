@@ -1,0 +1,37 @@
+services:
+  deemix:
+    image: registry.gitlab.com/bockiii/deemix-docker:latest # renovate: datasource=docker
+    container_name: deemix
+    restart: unless-stopped
+    networks:
+      - traefik
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DATA_DIR}/config:/config
+      - ${DOWNLOADS_DIR}:/downloads
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - DEEMIX_SINGLE_USER=true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.deemix.rule=Host(`deemix.${DOMAIN}`)"
+      - "traefik.http.routers.deemix.entrypoints=websecure"
+      - "traefik.http.routers.deemix.tls.certresolver=cloudflare"
+      - "traefik.http.routers.deemix.middlewares=authelia-auth@file"
+      - "traefik.http.services.deemix.loadbalancer.server.port=6595"
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "0.50"
+        reservations:
+          memory: 128m
+
+networks:
+  traefik:
+    external: true
