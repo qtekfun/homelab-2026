@@ -1,0 +1,22 @@
+zurg: v1
+token: YOUR_ALLDEBRID_API_KEY_HERE
+debrid_type: alldebrid
+port: 9999
+concurrent_workers: 20
+check_for_changes_every_secs: 10
+serve_from_rclone: false
+retain_folder_name_extension: true
+retain_rd_torrent_name: true
+directories:
+  movies:
+    group: media
+    filters:
+      - regex: '(?i)\.mkv$|\.mp4$|\.avi$'
+  shows:
+    group: media
+    filters:
+      - regex: '(?i)S\d+E\d+'
+  music:
+    group: media
+    filters:
+      - regex: '(?i)\.flac$|\.mp3$|\.m4a$'

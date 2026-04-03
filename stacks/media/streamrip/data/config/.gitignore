@@ -1,0 +1,5 @@
+*.log
+*.db
+*.bak
+downloaded.txt
+test-artists.txt
