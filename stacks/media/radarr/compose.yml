@@ -1,6 +1,6 @@
 services:
   radarr:
-    image: lscr.io/linuxserver/radarr:6.0.4 # renovate: datasource=docker
+    image: lscr.io/linuxserver/radarr:6.1.1 # renovate: datasource=docker
     container_name: radarr
     restart: unless-stopped
     volumes:
