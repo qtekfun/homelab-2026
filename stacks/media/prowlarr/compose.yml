@@ -1,6 +1,6 @@
 services:
   prowlarr:
-    image: lscr.io/linuxserver/prowlarr:2.3.0 # renovate: datasource=docker
+    image: lscr.io/linuxserver/prowlarr:2.3.5 # renovate: datasource=docker
     container_name: prowlarr
     restart: unless-stopped
     volumes:
