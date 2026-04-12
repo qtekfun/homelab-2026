@@ -1,6 +1,6 @@
 services:
   vaultwarden:
-    image: vaultwarden/server:1.35.4 # renovate: datasource=docker
+    image: vaultwarden/server:1.35.6 # renovate: datasource=docker
     container_name: vaultwarden
     restart: unless-stopped
     environment:
