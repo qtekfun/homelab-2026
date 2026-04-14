@@ -1,6 +1,6 @@
 services:
   prometheus:
-    image: prom/prometheus:v3.10.0 # renovate: datasource=docker
+    image: prom/prometheus:v3.11.2 # renovate: datasource=docker
     container_name: prometheus
     restart: unless-stopped
     volumes:
