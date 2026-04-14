@@ -3,14 +3,23 @@ name: Deploy on merge
 on:
   push:
     branches: [master]
+  schedule:
+    - cron: '0 3 * * *'  # Nightly at 03:00 UTC - check for upstream image updates
   workflow_dispatch:
     inputs:
       service:
         description: 'Stack to deploy (e.g. stacks/media/debrid). Leave empty to auto-detect.'
         required: false
         default: ''
+      check_updates:
+        description: 'Force upstream image update check (true/false)'
+        required: false
+        default: 'false'
 
 jobs:
+  # ──────────────────────────────────────────────
+  # JOB 1: Detect stacks changed in git (push flow)
+  # ──────────────────────────────────────────────
   changes:
     runs-on: ubuntu-latest
     outputs:
@@ -24,7 +33,7 @@ jobs:
       - name: Detect changed services
         id: diff
         run: |
-          # 1. Prioridad: Despliegue manual
+          # 1. Priority: manual deploy
           if [ -n "${{ github.event.inputs.service }}" ]; then
             SVC="${{ github.event.inputs.service }}"
             echo "services=[\"$SVC\"]" >> $GITHUB_OUTPUT
@@ -33,8 +42,15 @@ jobs:
             exit 0
           fi
 
-          # 2. Auto-detección: Busca cualquier compose modificado y extrae su directorio raíz
-          # Filtra para ignorar cambios en archivos que no sean de despliegue
+          # 2. Scheduled runs and pure update-check dispatches have no git diff to act on
+          if [ "${{ github.event_name }}" = "schedule" ] || \
+             [ "${{ github.event.inputs.check_updates }}" = "true" ]; then
+            echo "services=[]" >> $GITHUB_OUTPUT
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # 3. Auto-detect: find any modified compose file and extract its root dir
           CHANGED=$(git diff --name-only HEAD~1 HEAD \
             | grep -E '(compose\.yml|docker-compose\.yml)$' \
             | xargs -I {} dirname {} \
@@ -47,8 +63,6 @@ jobs:
             exit 0
           fi
 
-          # 3. Formatear lista a JSON Array para la matriz
-          # Usamos printf para construir el JSON de forma segura sin dependencias externas
           JSON="["
           FIRST=true
           for line in $CHANGED; do
@@ -56,19 +70,145 @@ jobs:
             JSON="$JSON\"$line\""
           done
           JSON="$JSON]"
-
           echo "services=$JSON" >> $GITHUB_OUTPUT
           echo "has_changes=true" >> $GITHUB_OUTPUT
           echo "Changed services: $JSON"
 
+  # ──────────────────────────────────────────────
+  # JOB 2: Detect stacks with outdated images on host
+  # ──────────────────────────────────────────────
+  check-updates:
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.scan.outputs.services }}
+      has_updates: ${{ steps.scan.outputs.has_updates }}
+    # Run on schedule, or on dispatch when explicitly requested, skip on plain push
+    if: |
+      github.event_name == 'schedule' ||
+      github.event.inputs.check_updates == 'true'
+    steps:
+      - name: Scan host for outdated containers
+        id: scan
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          HOST: "192.168.188.6"
+          USER: "note"
+          DEPLOY_PATH: "/home/note/docker"
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p 22 $HOST >> ~/.ssh/known_hosts 2>/dev/null
+
+          OUTDATED=$(ssh -i ~/.ssh/id_ed25519 -p 22 $USER@$HOST bash -s << 'EOF'
+          set -euo pipefail
+          DEPLOY_PATH="/home/note/docker"
+          OUTDATED_STACKS=""
+
+          while IFS= read -r compose_file; do
+            stack_dir=$(dirname "$compose_file")
+            rel_dir="${stack_dir#$DEPLOY_PATH/}"
+
+            images=$(docker compose -f "$compose_file" config --images 2>/dev/null || true)
+            [ -z "$images" ] && continue
+
+            stack_outdated=false
+            while IFS= read -r image; do
+              [ -z "$image" ] && continue
+
+              digest_before=$(docker image inspect "$image" \
+                --format '{{index .RepoDigests 0}}' 2>/dev/null || echo "none")
+
+              docker pull --quiet "$image" > /dev/null 2>&1 || true
+
+              digest_after=$(docker image inspect "$image" \
+                --format '{{index .RepoDigests 0}}' 2>/dev/null || echo "none")
+
+              if [ "$digest_before" != "$digest_after" ]; then
+                echo "  [UPDATE] $image in $rel_dir" >&2
+                stack_outdated=true
+              else
+                echo "  [OK]     $image in $rel_dir" >&2
+              fi
+            done <<< "$images"
+
+            if [ "$stack_outdated" = true ]; then
+              OUTDATED_STACKS="$OUTDATED_STACKS $rel_dir"
+            fi
+          done < <(find "$DEPLOY_PATH" -name "compose.yml" -o -name "docker-compose.yml" | sort)
+
+          echo "$OUTDATED_STACKS" | xargs -n1 | sort -u
+          EOF
+          )
+
+          if [ -z "$OUTDATED" ]; then
+            echo "services=[]" >> $GITHUB_OUTPUT
+            echo "has_updates=false" >> $GITHUB_OUTPUT
+            echo "All images are up to date."
+            exit 0
+          fi
+
+          JSON="["
+          FIRST=true
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            if [ "$FIRST" = true ]; then FIRST=false; else JSON="$JSON,"; fi
+            JSON="$JSON\"$line\""
+          done <<< "$OUTDATED"
+          JSON="$JSON]"
+
+          echo "services=$JSON" >> $GITHUB_OUTPUT
+          echo "has_updates=true" >> $GITHUB_OUTPUT
+          echo "Outdated stacks: $JSON"
+
+  # ──────────────────────────────────────────────
+  # JOB 3: Merge both service lists, deduplicate
+  # ──────────────────────────────────────────────
+  combine:
+    needs: [changes, check-updates]
+    runs-on: ubuntu-latest
+    # Always runs so downstream deploy can gate on its output
+    if: always()
+    outputs:
+      services: ${{ steps.merge.outputs.services }}
+      has_work: ${{ steps.merge.outputs.has_work }}
+    steps:
+      - name: Merge service lists
+        id: merge
+        run: |
+          FROM_GIT='${{ needs.changes.outputs.services }}'
+          FROM_SCAN='${{ needs.check-updates.outputs.services }}'
+          [ -z "$FROM_GIT" ]  && FROM_GIT="[]"
+          [ -z "$FROM_SCAN" ] && FROM_SCAN="[]"
+
+          MERGED=$(python3 -c "
+          import sys, json
+          a = json.loads(sys.argv[1])
+          b = json.loads(sys.argv[2])
+          print(json.dumps(sorted(set(a) | set(b))))
+          " "$FROM_GIT" "$FROM_SCAN")
+
+          if [ "$MERGED" = "[]" ]; then
+            echo "services=[]" >> $GITHUB_OUTPUT
+            echo "has_work=false" >> $GITHUB_OUTPUT
+            echo "Nothing to deploy."
+          else
+            echo "services=$MERGED" >> $GITHUB_OUTPUT
+            echo "has_work=true" >> $GITHUB_OUTPUT
+            echo "Final deploy list: $MERGED"
+          fi
+
+  # ──────────────────────────────────────────────
+  # JOB 4: Deploy (unchanged logic, new input source)
+  # ──────────────────────────────────────────────
   deploy:
-    needs: changes
-    if: needs.changes.outputs.has_changes == 'true'
+    needs: combine
+    if: needs.combine.outputs.has_work == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        service: ${{ fromJson(needs.changes.outputs.services) }}
+        service: ${{ fromJson(needs.combine.outputs.services) }}
     steps:
       - name: Deploy ${{ matrix.service }}
         env:
@@ -85,12 +225,11 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -p 22 $HOST >> ~/.ssh/known_hosts 2>/dev/null
 
-          # Ejecución remota
           ssh -i ~/.ssh/id_ed25519 -p 22 $USER@$HOST "
             set -e
             if [ -d \"$DEPLOY_PATH/$SERVICE\" ]; then
               cd \"$DEPLOY_PATH/$SERVICE\"
-              echo \"Updating $SERVICE in server...\"
+              echo \"Deploying $SERVICE...\"
               git pull origin master
               docker compose pull
               docker compose up -d --remove-orphans
