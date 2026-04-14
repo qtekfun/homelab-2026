@@ -121,7 +121,7 @@ services:
           memory: 32m
 
   alertmanager:
-    image: prom/alertmanager:v0.31.1 # renovate: datasource=docker
+    image: prom/alertmanager:v0.32.0 # renovate: datasource=docker
     container_name: alertmanager
     restart: unless-stopped
     volumes:
