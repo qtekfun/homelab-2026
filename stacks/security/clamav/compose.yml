@@ -1,6 +1,6 @@
 services:
   clamav:
-    image: clamav/clamav:1.4 # renovate: datasource=docker
+    image: clamav/clamav:1.5.2-35 # renovate: datasource=docker
     container_name: clamav
     restart: unless-stopped
     volumes:
