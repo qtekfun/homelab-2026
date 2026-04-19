@@ -1,6 +1,6 @@
 services:
   beets:
-    image: lscr.io/linuxserver/beets:2.9.0 # renovate: datasource=docker
+    image: lscr.io/linuxserver/beets:2.10.0 # renovate: datasource=docker
     container_name: beets
     restart: unless-stopped
     volumes:
