@@ -22,7 +22,7 @@ services:
           memory: 128m
 
   rclone:
-    image: rclone/rclone:1.73.4 # renovate: datasource=docker
+    image: rclone/rclone:1.73.5 # renovate: datasource=docker
     container_name: rclone
     restart: unless-stopped
     cap_add:
